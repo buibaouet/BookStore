@@ -1,0 +1,135 @@
+﻿@{
+    ViewData["Title"] = "Quản lý sách";
+    ViewData["HeaderTitle"] = "Quản lý sách";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Menu = 3;
+    TempData["ToastMessage"] = "Thành công";
+    TempData["ToastType"] = "Success";
+}
+
+
+
+@section css {
+}
+
+@section scripts {
+    <script src="~/js/main.js"></script>
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3">
+    <div class="d-flex">
+        <div class="navbar-nav navbar-nav-custom align-items-center navbar-detached px-2">
+            <div class="nav-item d-flex align-items-center">
+                <i class="bx bx-search fs-4 lh-0"></i>
+                <input type="text" class="form-control border-0 shadow-none" placeholder="Tìm sách...">
+            </div>
+        </div>
+        <div class="px-2">
+            <select class="form-select navbar-detached w-px-250" id="selectCategory">
+                <option value="0" selected>Chọn danh mục</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" style="height: fit-content;" href="/admin/bookdetail">
+        Thêm mới
+    </button>
+</div>
+<div class="card">
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tên sách</th>
+                    <th>Danh mục</th>
+                    <th>Số lượng</th>
+                    <th>Còn lại</th>
+                    <th>Giá tiền</th>
+                    <th>Giá khuyến mại</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td title="React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project">
+                        <img src="~/img/banner-1.jpg" class="img-book-td mx-1">
+                        <strong>React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project</strong>
+                    </td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>@(129000.ToString("#,##0")) đ</td>
+                    <td>Albert Cook</td>
+                    <td><span class="badge bg-label-primary me-1">Active</span></td>
+                    <td>
+                        <div class="d-flex h-100">
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Sửa"><i class="bx bx-edit-alt me-1"></i></a>
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Xóa"><i class="bx bx-trash me-1"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td title="React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project">
+                        <img src="~/img/ii.png" class="img-book-td mx-1">
+                        <strong>React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project</strong>
+                    </td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td><span class="badge bg-label-primary me-1">Active</span></td>
+                    <td>
+                        <div class="d-flex h-100">
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Sửa"><i class="bx bx-edit-alt me-1"></i></a>
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Xóa"><i class="bx bx-trash me-1"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td title="React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project">
+                        <img src="~/img/product-1.jpg" class="img-book-td mx-1">
+                        <strong>React ProjectReact ProjectReact ProjectReact ProjectReact ProjectReact Project</strong>
+                    </td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td>Albert Cook</td>
+                    <td><span class="badge bg-label-primary me-1">Active</span></td>
+                    <td>
+                        <div class="d-flex h-100">
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Sửa"><i class="bx bx-edit-alt me-1"></i></a>
+                            <a class="h-100 w-px-30" href="javascript:void(0);" title="Xóa"><i class="bx bx-trash me-1"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+            <h6 class="m-0">Tổng số: 6 bản ghi</h6>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-1">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only"></span>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only"></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

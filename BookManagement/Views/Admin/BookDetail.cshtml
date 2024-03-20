@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Quản lý sách";
+    ViewData["HeaderTitle"] = "Thêm / sửa sách";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Menu = 3;
+}
+
+@section css {
+
+}
+
+@section scripts {
+    <script src="~/js/main.js"></script>
+
+    <script type="text/javascript">
+        $('.img-book-upload').click(function () {
+            $('#imgInp')[0].click();
+        });
+    </script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/super-build/ckeditor.js"></script>
+    <script>
+        CKEDITOR.ClassicEditor.create(document.getElementById("editor"), {
+            plugins: ['Essentials',
+                'Paragraph',
+                'Heading',
+                'Bold',
+                'Italic',
+                'Underline',
+                'Strikethrough',
+                'SourceEditing',
+                'Subscript',
+                'Superscript',
+                'Alignment',
+                'Indent',
+                'IndentBlock',
+                'BlockQuote',
+                'Link',
+                'Image',
+                'ImageCaption',
+                'ImageStyle',
+                'ImageToolbar',
+                'ImageUpload',
+                'List',
+                'MediaEmbed',
+                'PasteFromOffice',
+                'Table',
+                'TableToolbar',
+                'TableProperties',
+                'TableCellProperties',
+                'Highlight',
+                'FontFamily',
+                'FontSize',
+                'FontColor',
+                'FontBackgroundColor', 'GeneralHtmlSupport']
+        });
+    </script>
+}
+
+<div class="d-flex align-items-center">
+    <a href="/admin/bookmanagement">
+        <i class="menu-icon tf-icons bx bx-arrow-back" style="font-size: 1.5em;"></i>
+    </a>
+
+    <h5 class="m-0">Thông tin cuốn sách</h5>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <form>
+            <div class="book-detail row">
+                <div class="col-xl-3 col-md-12">
+                    <div class="mb-3 me-2">
+                        <label class="form-label" for="basic-default-fullname">Ảnh bìa sách</label>
+                        <div class="img-book-upload w-100 border">
+                            <img src="~/img/ii.png" class="h-100 w-100" alt="Chọn ảnh bìa" />
+                            <input type="file" id="imgInp" accept=".png,.jpg" hidden />
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-xl-9 col-md-12">
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Mã sách</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" required="required" maxlength="8" placeholder="Mã sách" />
+                        </div>
+                    </div>
+                    <div class="col-xl-8 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Tên sách (Tiêu đề)</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" required="required" placeholder="Tiêu đề" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Danh mục</label>
+                            <select class="form-select" id="exampleFormControlSelect1">
+                                <option value="0" selected>Chọn danh mục</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xl-8 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Tên danh mục</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" disabled placeholder="Tên danh mục" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Số lượng</label>
+                            <input class="form-control" type="number" min="0" max="1000" id="html5-number-input" required="required" placeholder="Số lượng" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Giá sách</label>
+                            <div class="input-group">
+                                <input class="form-control" type="number" min="0" max="1000000000" id="html5-number-input" required="required" placeholder="Giá sách" />
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Giá khuyến mại</label>
+                            <div class="input-group">
+                                <input class="form-control" type="number" min="0" max="1000000000" id="html5-number-input" placeholder="Giá khuyến mại" />
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Tác giả</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" required="required" placeholder="Tác giả" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Nhà xuất bản</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" placeholder="Nhà xuất bản" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Năm xuất bản</label>
+                            <input class="form-control" type="month" id="html5-month-input" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Khối lượng</label>
+                            <div class="input-group">
+                                <input class="form-control" type="number" min="0" max="10000" id="html5-number-input" required="required" placeholder="Khối lượng" />
+                                <span class="input-group-text">gram</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Số trang</label>
+                            <input class="form-control" type="number" min="0" max="10000" id="html5-number-input" required="required" placeholder="Số trang" />
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label" for="basic-default-fullname">Kích thước (cm)</label>
+                            <input type="text" class="form-control" id="basic-default-fullname" placeholder="14.5 x 20.5 x 2.7" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="basic-default-message">Thông tin mô tả</label>
+                <div id="editor"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="formFileMultiple" class="form-label">Thêm hình ảnh sản phẩm <small>(Tối thiểu 2 ảnh, tối đa 5 ảnh)</small></label>
+                <input class="form-control" accept=".png,.jpg" type="file" max="5" id="formFileMultiple" multiple />
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="isActive" checked />
+                    <label class="form-check-label">Trạng thái</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
