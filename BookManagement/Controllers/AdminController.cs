@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookManagement.Controllers
 {
-    [AdminAuthorize]
+    [Authorize(Roles = Role.Admin)]
     public class AdminController : Controller
     {
 

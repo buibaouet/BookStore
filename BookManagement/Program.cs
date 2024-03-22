@@ -2,15 +2,14 @@
 using BookManagement.Models.Entity;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 var connectionString = builder.Configuration.GetConnectionString("MySql");
@@ -23,17 +22,23 @@ builder.Services.AddDistributedMemoryCache();  // Đăng ký dịch vụ lưu ca
 builder.Services.AddSession(cfg =>
 {           // Đăng ký dịch vụ Session
     cfg.Cookie.Name = "bookStore";            // Đặt tên Session - tên này sử dụng ở Browser (Cookie)
-    cfg.IdleTimeout = new TimeSpan(72, 00, 0);  // Thời gian tồn tại của Session
+    cfg.IdleTimeout = new TimeSpan(30, 00, 00, 0);  // Thời gian tồn tại của Session
     cfg.Cookie.IsEssential = true;
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-        options =>
-        {
-            options.LoginPath = new PathString("/account/login");
-            options.AccessDeniedPath = new PathString("/account/accessdenied");
-        });
+    .AddCookie(
+    options =>
+    {
+        // Cookie settings
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.LoginPath = "/account/login";
+        options.AccessDeniedPath = "/account/accessdenied";
+        options.SlidingExpiration = true;
+    });
 
 builder.Services.AddTransient<IDbContext, AppDbContext>();
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -42,7 +47,6 @@ builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -57,7 +61,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapRazorPages();
+app.MapDefaultControllerRoute();
 
 app.UseSession();
 

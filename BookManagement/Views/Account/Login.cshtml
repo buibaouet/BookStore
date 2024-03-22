@@ -49,7 +49,7 @@
                                     <div class="text-center">
                                         <h1 class="h4 text-gray-900 mb-4">Chào mừng bạn!</h1>
                                     </div>
-                                    @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "user", role = "form" }))
+                                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { @class = "user", role = "form" }))
                                     {
                                         <div class="form-group">
                                             @Html.TextBoxFor(m => m.UserName, new { @class = "form-control form-control-user", @required="required", @placeholder="Tên đăng nhập" })
@@ -62,7 +62,7 @@
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
+                                                @Html.CheckBoxFor(m => m.RememberMe, new { @id="rememberMe", @class = "custom-control-input" })
                                                 <label class="custom-control-label" for="customCheck">
                                                     Remember
                                                     Me
@@ -79,7 +79,7 @@
                                     }
                                     <hr>
                                     @* <div class="text-center">
-                                        <a class="small" href="forgot-password.html">Quên mật khẩu?</a>
+                                    <a class="small" href="forgot-password.html">Quên mật khẩu?</a>
                                     </div> *@
                                     <div class="text-center">
                                         <a class="small" href="/account/register">Tạo tài khoản!</a>
@@ -119,7 +119,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-                console.log('@ViewBag.ToastType');
+            console.log('@ViewBag.ToastType');
             // Kiểm tra nếu có toast message trong TempData
             if ('@ViewBag.ToastType' && '@ViewBag.ToastType' != 'None') {
                 // Hiển thị toast message

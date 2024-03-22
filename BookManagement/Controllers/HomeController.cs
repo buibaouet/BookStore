@@ -25,15 +25,11 @@ namespace BookManagement.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Detail()
+        public async Task<IActionResult> Detail(int bookId)
         {
             return View();
         }
-        public async Task<IActionResult> Search()
-        {
-            return View();
-        }
-        public async Task<IActionResult> Category()
+        public async Task<IActionResult> Search(int pageIndex, string? keyword, int? categoryId, int? sortType)
         {
             return View();
         }

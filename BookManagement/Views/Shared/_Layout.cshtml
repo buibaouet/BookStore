@@ -2,6 +2,7 @@
 @using BookManagement.Models.Entity;
 @using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
+@using System.Security.Claims;
 @inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -65,7 +66,7 @@
                     @{
                         var userConfig = new User();
 
-                        string userConfigStr = HttpContextAccessor.HttpContext.Session.GetString("_userConfig");
+                        string userConfigStr = HttpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData)?.Value;
 
                         if (!string.IsNullOrEmpty(userConfigStr))
                         {
@@ -94,11 +95,14 @@
                                                 <img src="~/img/user-icon.png" class="w-100 h-100 rounded-circle" />
                                             </div>
                                         </div>
-                                        <span class="fw-semibold d-block">@string.Concat(userConfig.FirstName, " ", userConfig.LastName)</span>
-                                        @if (userConfig.IsAdmin)
-                                        {
-                                            <small class="text-muted mb-5">Admin</small>
-                                        }
+                                        <h6 class="fw-semibold d-block">@userConfig.UserName
+                                            @if (userConfig.IsAdmin)
+                                            {
+                                                <small class="text-muted mb-5" style="font-size: x-small;">(admin)</small>
+                                            }
+                                        </h6>
+                                        <small class="text-muted mb-5">@userConfig.Email</small>
+                                        
                                         <li>
                                             <div class="dropdown-divider"></div>
                                         </li>

@@ -13,7 +13,7 @@ namespace BookManagement.Models.Model
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             // Check _userConfig
-            var userConfigStr = context.HttpContext.Session.GetString("_userConfig");
+            var userConfigStr = context.HttpContext.User.FindFirst(ClaimTypes.UserData)?.Value;
 
             if (!string.IsNullOrEmpty(userConfigStr))
             {

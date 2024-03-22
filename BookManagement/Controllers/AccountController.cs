@@ -3,13 +3,11 @@ using BookManagement.Models.Entity;
 using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Session;
 using Newtonsoft.Json;
-using System.Diagnostics.Eventing.Reader;
+using System.Security.Claims;
 
 namespace BookManagement.Controllers
 {
@@ -29,8 +27,7 @@ namespace BookManagement.Controllers
 
         // Get: /Account/Login
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewBag.ToastType = Constants.None;
@@ -49,16 +46,38 @@ namespace BookManagement.Controllers
 
         // POST: /Account/Login
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(UserModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(UserModel model, string? returnUrl = null)
         {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            ViewData["ReturnUrl"] = returnUrl;
+
             if (ModelState.IsValid)
             {
                 var user = await _authService.AuthenticationUser(model);
                 if (user != null)
                 {
-                    HttpContext.Session.SetString("_userConfig", JsonConvert.SerializeObject(user));
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.UserData, JsonConvert.SerializeObject(user)),
+                        new Claim(ClaimTypes.Role, user.IsAdmin ? Role.Admin : Role.Default),
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        AllowRefresh = true,
+                        IsPersistent = model.RememberMe,
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
                     return RedirectToLocal(returnUrl);
                 }
                 else
@@ -73,6 +92,7 @@ namespace BookManagement.Controllers
         }
 
         // Get: /Account/Register
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
@@ -80,7 +100,6 @@ namespace BookManagement.Controllers
 
         // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterModel model)
         {
@@ -105,12 +124,14 @@ namespace BookManagement.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Remove("_userConfig");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
         public IActionResult AccessDenied()
         {
             return View();
