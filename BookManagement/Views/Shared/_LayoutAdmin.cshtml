@@ -233,6 +233,8 @@
             </div>
             <!-- / Layout page -->
         </div>
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
 
         <div class="bs-toast toast toast-placement @(ViewBag.ToastType?.ToString() == Constants.Success ? "bg-success" : "bg-danger") top-0 end-0 m-2"
              role="alert"
@@ -241,7 +243,7 @@
              data-delay="500">
             <div class="toast-header">
                 <i class="bx bx-bell me-2"></i>
-                <div class="me-auto fw-semibold">@(ViewBag.ToastType?.ToString() == Constants.Success ? "Thành công" : "Thất bại")</div>
+                <div class="me-auto fw-semibold title">@(ViewBag.ToastType?.ToString() == Constants.Success ? "Thành công" : "Thất bại")</div>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
@@ -249,8 +251,6 @@
             </div>
         </div>
 
-        <!-- Overlay -->
-        <div class="layout-overlay layout-menu-toggle"></div>
     </div>
     <!-- / Layout wrapper -->
     <!-- Core JS -->
@@ -272,7 +272,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            console.log('@ViewBag.ToastType');
             // Kiểm tra nếu có toast message trong TempData
             if ('@ViewBag.ToastType' && '@ViewBag.ToastType' != 'None') {
                 // Hiển thị toast message
@@ -281,4 +280,8 @@
         });
     </script>
 </body>
+@{ 
+    ViewBag.ToastType = Constants.None; 
+    ViewBag.ToastMessage = string.Empty; 
+}
 </html>

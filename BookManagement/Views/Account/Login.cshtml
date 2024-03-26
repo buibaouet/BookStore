@@ -119,7 +119,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            console.log('@ViewBag.ToastType');
             // Kiểm tra nếu có toast message trong TempData
             if ('@ViewBag.ToastType' && '@ViewBag.ToastType' != 'None') {
                 // Hiển thị toast message
@@ -127,6 +126,9 @@
             }
         });
     </script>
-
+@{ 
+    ViewBag.ToastType = Constants.None; 
+    ViewBag.ToastMessage = string.Empty; 
+}
 </body>
 </html>

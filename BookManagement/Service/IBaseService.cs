@@ -10,6 +10,7 @@ namespace BookManagement.Service
         Task<T> Get(Expression<Func<T, bool>> expresstion);
         Task<List<T>> GetList(Expression<Func<T, bool>> expresstion);
         Task<bool> Exist(Expression<Func<T, bool>> expresstion);
+        Task<int> Count(Expression<Func<T, bool>> expresstion);
         Task Insert(T entity);
         Task InsertMulti(List<T> entities);
         Task Update(T entity);

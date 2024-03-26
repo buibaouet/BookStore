@@ -58,11 +58,6 @@
                     </form>
                 </div>
                 <div class="col-lg-3 col-6 d-flex justify-content-end">
-
-                    <a href="/cart" class="btn">
-                        <i class="fas fa-shopping-cart text-primary"></i>
-                        <span class="badge">0</span>
-                    </a>
                     @{
                         var userConfig = new User();
 
@@ -75,12 +70,25 @@
 
                         if (userConfig is null || string.IsNullOrEmpty(userConfigStr))
                         {
+                            <a href="/cart" class="btn">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                                <span class="badge">0</span>
+                            </a>
+
                             <a href="/account/login" class="btn">
                                 Đăng nhập
                             </a>
                         }
                         else
                         {
+                            @if (!userConfig.IsAdmin)
+                            {
+                                <a href="/cart" class="btn">
+                                    <i class="fas fa-shopping-cart text-primary"></i>
+                                    <span class="badge">0</span>
+                                </a>
+                            }
+
                             <ul class="navbar-nav btn-user-circle flex-row align-items-center ml-2">
                                 <!-- User -->
                                 <li class="nav-item navbar-dropdown h-100 w-100 dropdown-user dropdow">
@@ -183,6 +191,7 @@
             <div class="toast-header">
                 <i class="bx bx-bell mr-2"></i>
                 <div class="me-auto fw-semibold">@(ViewBag.ToastType?.ToString() == Constants.Success ? "Thành công" : "Thất bại")</div>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
                 @ViewBag.ToastMessage
@@ -202,7 +211,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            console.log('@ViewBag.ToastType');
             // Kiểm tra nếu có toast message trong TempData
             if ('@ViewBag.ToastType' && '@ViewBag.ToastType' != 'None') {
                 // Hiển thị toast message
@@ -211,4 +219,8 @@
         });
     </script>
 </body>
+@{ 
+    ViewBag.ToastType = Constants.None; 
+    ViewBag.ToastMessage = string.Empty; 
+}
 </html>

@@ -54,6 +54,15 @@ namespace BookManagement.Service
         }
 
         /// <summary>
+        /// Lấy ra thông tin bản ghi
+        /// </summary>
+        /// <returns></returns>
+        public async virtual Task<int> Count(Expression<Func<T, bool>> expresstion)
+        {
+            return await _baseRepo.Count(expresstion);
+        }
+
+        /// <summary>
         /// Lấy ra thông tin 
         /// </summary>
         /// <returns></returns>

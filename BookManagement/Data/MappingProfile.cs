@@ -10,6 +10,8 @@ namespace BookManagement.Data
         {
             CreateMap<User, RegisterModel>();
             CreateMap<RegisterModel, User>();
+            CreateMap<CategoryModel, Category>();
+            CreateMap<Category, CategoryModel>();
         }
     }
 }

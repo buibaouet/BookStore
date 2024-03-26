@@ -17,5 +17,12 @@
             Complete = 3,
             Cancel = 4
         }
+
+        public enum EditMode : int
+        {
+            Add = 1,
+            Edit = 2,
+            Delete = 3,
+        }
     }
 }

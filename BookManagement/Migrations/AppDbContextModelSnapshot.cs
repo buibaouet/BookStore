@@ -19,19 +19,20 @@ namespace BookManagement.Migrations
                 .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("BookManagement.Models.Book", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.Book", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("BookCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(12)
+                        .HasColumnType("varchar(12)");
 
                     b.Property<string>("BookImage")
                         .IsRequired()
@@ -39,13 +40,15 @@ namespace BookManagement.Migrations
 
                     b.Property<string>("BookName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
-                    b.Property<double?>("BookPage")
-                        .HasColumnType("double");
+                    b.Property<int?>("BookPage")
+                        .HasColumnType("int");
 
                     b.Property<string>("BookSize")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<double?>("BookWeight")
                         .HasColumnType("double");
@@ -61,7 +64,6 @@ namespace BookManagement.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("InfoImage")
@@ -78,17 +80,16 @@ namespace BookManagement.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PublishTime")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Publisher")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("Remaining")
+                    b.Property<int>("SoldQuantity")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -99,7 +100,7 @@ namespace BookManagement.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.Cart", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.Cart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -136,7 +137,7 @@ namespace BookManagement.Migrations
                     b.ToTable("Carts");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.Category", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -168,7 +169,7 @@ namespace BookManagement.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.Order", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +208,7 @@ namespace BookManagement.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.OrderDetail", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.OrderDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,7 +248,7 @@ namespace BookManagement.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.User", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -287,7 +288,7 @@ namespace BookManagement.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BookManagement.Models.Voucher", b =>
+            modelBuilder.Entity("BookManagement.Models.Entity.Voucher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
