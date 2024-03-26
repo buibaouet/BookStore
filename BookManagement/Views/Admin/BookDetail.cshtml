@@ -30,7 +30,7 @@
                     <div class="mb-3 me-2">
                         <label class="form-label" for="basic-default-fullname">Ảnh bìa sách</label>
                         <div class="img-book-upload w-100 border">
-                            <img id="imgBook" src="/uploads/@Model.BookImage" class="h-100 w-100" alt="Chọn ảnh bìa" />
+                            <img id="imgBook" src="/uploads/@(Model.BookImage ?? "img-empty.png")" class="h-100 w-100" alt="Chọn ảnh bìa" />
                             <input type="file" id="inpImgBook" accept=".png,.jpg" onchange="uploadBookImg(this)" hidden />
                         </div>
                         @Html.ValidationMessageFor(m=>m.BookImage, "", new { @class = "text-danger" })
