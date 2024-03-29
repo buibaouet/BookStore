@@ -24,6 +24,17 @@ namespace BookManagement.Service
 
             return entities.ToList();
         }
+        
+        /// <summary>
+        /// Lấy toàn bộ dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        public virtual IQueryable<T> GetDbSet()
+        {
+            var entities = _baseRepo.GetDbSet();
+
+            return entities;
+        }
 
         /// <summary>
         /// Lấy ra thông tin bản ghi theo khóa chính

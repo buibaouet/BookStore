@@ -4,6 +4,7 @@ using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -42,6 +43,17 @@ namespace BookManagement.Controllers
             }
 
             return View();
+        }
+
+        // Get: /Account/LoginGoogle
+        [HttpGet]
+        public async Task LoginGoogle()
+        {
+            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme,
+                new AuthenticationProperties
+                {
+                    RedirectUri = Url.Action("SigninGoogle")
+                });
         }
 
         // POST: /Account/Login
@@ -91,6 +103,58 @@ namespace BookManagement.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> SigninGoogle()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var claimsData = result.Principal.Identities.FirstOrDefault().Claims.ToList();
+
+            // Đăng nhập google thành công 
+            var email = claimsData.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            var user = await _userService.Get(x => x.Email.ToLower().Trim().Equals(email.ToLower().Trim()));
+
+            // Nếu chưa có user thì insert user vào database
+            if (user is null)
+            {
+                user = new User()
+                {
+                    FirstName = claimsData.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value,
+                    LastName = claimsData.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now,
+                    Email = email,
+                    UserName = email,
+                    IsAdmin = false,
+                    Password = string.Empty
+                };
+
+                await _userService.Insert(user);
+            }
+
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, email),
+                    new Claim(ClaimTypes.UserData, JsonConvert.SerializeObject(user)),
+                    new Claim(ClaimTypes.Role, user.IsAdmin ? Role.Admin : Role.Default),
+                };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+                IsPersistent = true,
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
         // Get: /Account/Register
         [HttpGet]
         public IActionResult Register()
@@ -105,10 +169,22 @@ namespace BookManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userExist = await _userService.Exist(x => x.UserName.Equals(model.UserName));
-                if (userExist)
+                var userExist = await _userService.Exist(x => x.UserName.ToLower().Trim().Equals(model.UserName.ToLower().Trim()));
+                var emailExist = await _userService.Exist(x => x.Email.ToLower().Trim().Equals(model.Email.ToLower().Trim()));
+                if (userExist && emailExist)
                 {
                     ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại");
+                    ModelState.AddModelError("Email", "Email đã tồn tại");
+                    return View(model);
+                }
+                else if (userExist)
+                {
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại");
+                    return View(model);
+                }
+                else if (emailExist)
+                {
+                    ModelState.AddModelError("Email", "Email đã tồn tại");
                     return View(model);
                 }
                 else

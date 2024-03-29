@@ -24,5 +24,13 @@
             Edit = 2,
             Delete = 3,
         }
+
+        public enum SortType : int
+        {
+            New = 1,
+            Sell = 2,
+            Cheap = 3,
+            Expensive = 4,
+        }
     }
 }

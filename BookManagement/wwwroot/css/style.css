@@ -152,6 +152,7 @@ sup {
 }
 
 a {
+    cursor: pointer;
     color: #daa14d;
     text-decoration: none;
     background-color: transparent;
@@ -10289,6 +10290,7 @@ a.text-dark:hover, a.text-dark:focus {
     .navbar-light .navbar-nav .nav-link:hover,
     .navbar-light .navbar-nav .nav-link.active {
         color: #daa14d;
+        background-color: #fffbf6;
     }
 
 @media (max-width: 991.98px) {
@@ -10614,4 +10616,8 @@ th {
         top: 100%;
         left: 0;
         margin-top: 0.125rem;
+    }
+
+    .w-px-100{
+        width: 100px !important;
     }

@@ -164,6 +164,7 @@
                     <button type="submit" class="btn btn-primary">Lưu</button>
                 </div>
             </div>
+            @Html.EditorFor(model => model.CreatedDate, new { @type = "date", @class="d-none hide-cls" })
         }
     </div>
 </div>

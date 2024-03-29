@@ -1,36 +1,111 @@
-﻿using BookManagement.Data;
+﻿using AutoMapper;
+using BookManagement.Data;
 using BookManagement.Models.Entity;
+using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using X.PagedList;
+using static BookManagement.Constant.Enumerations;
 
 namespace BookManagement.Controllers
 {
     [AllowAnonymous]
     public class HomeController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly ILogger<HomeController> _logger;
-        private readonly IBaseService<User> _userService;
+        private readonly IBaseService<Category> _categoryService;
+        private readonly IBaseService<Book> _bookService;
 
-        public HomeController(ILogger<HomeController> logger, IBaseService<User> userService)
+        public HomeController(IMapper mapper,
+            ILogger<HomeController> logger,
+            IBaseService<Category> categoryService,
+            IBaseService<Book> bookService)
         {
             _logger = logger;
-            _userService = userService;
+            _categoryService = categoryService;
+            _bookService = bookService;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.Products = await _userService.GetEntityById(1);
+            var books = await _bookService.GetList(x => x.IsActive && x.Quantity > 0);
+            // Sách bán chạy
+            ViewBag.BookSelling = books.OrderByDescending(x => x.SoldQuantity).Skip(0).Take(8).ToList();
+            // Sách mới nhất
+            ViewBag.BookNews = books.OrderByDescending(x => x.CreatedDate).Skip(0).Take(8).ToList();
+            // Set vào ViewBag
+            ViewBag.CategoryList = _categoryService.GetAll();
+
             return View();
         }
 
-        public async Task<IActionResult> Detail(int bookId)
+        public async Task<IActionResult> Detail(int id)
         {
+            ViewBag.Book = await _bookService.GetEntityById(id);
+
+            var relatedBooks = new List<Book>();
+
+            // lấy 10 sách cùng danh mục
+            var bookCategory = _bookService.GetDbSet().Where(x => x.IsActive && x.Quantity > 0 && x.Id != id).Skip(0).Take(8).ToList();
+            relatedBooks.AddRange(bookCategory);
+
+            // Nếu không đủ thì lấy random sách cho đủ 10
+            if (relatedBooks.Count < 10)
+            {
+                var bookRandom = _bookService.GetDbSet()
+                    .Where(x => x.IsActive && x.Quantity > 0 && x.Id != id && !relatedBooks.Select(x => x.Id).Contains(x.Id))
+                    .Skip(0).Take(10 - relatedBooks.Count)
+                    .ToList();
+                relatedBooks.AddRange(bookRandom);
+            }
+
+            ViewBag.RelatedBooks = relatedBooks;
+
             return View();
         }
-        public async Task<IActionResult> Search(int pageIndex, string? keyword, int? categoryId, int? sortType)
+        public async Task<IActionResult> Search(int? pageIndex, string? keyword, int? categoryId, int? sortType)
         {
+            ViewBag.Keyword = keyword;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.SortType = sortType;
+            ViewBag.CategoryList = _categoryService.GetAll();
+
+            var cate = await _categoryService.GetEntityById(categoryId ?? 0);
+            ViewBag.CategoryName = cate?.CategoryName ?? string.Empty;
+
+            var books = await _bookService.GetList(x => (string.IsNullOrEmpty(keyword) ? x.Id > 0 : x.BookName.ToLower().Contains(keyword.ToLower().Trim()))
+                && (categoryId != null && categoryId != 0 ? x.CategoryId == categoryId : x.Id > 0));
+
+            var dataPaging = books.OrderBy(x => x.BookName);
+
+            switch (sortType)
+            {
+                case (int)SortType.New:
+                    dataPaging = books.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case (int)SortType.Sell:
+                    dataPaging = books.OrderByDescending(x => x.SoldQuantity);
+                    break;
+                case (int)SortType.Cheap:
+                    dataPaging = books.OrderBy(x => (x.PriceDiscount ?? x.Price));
+                    break;
+                case (int)SortType.Expensive:
+                    dataPaging = books.OrderByDescending(x => (x.PriceDiscount ?? x.Price));
+                    break;
+                default:
+                    break;
+            }
+
+            ViewBag.Paging = new PagingModel<Book>()
+            {
+                TotalRecord = books.Count(),
+                DataPaging = dataPaging.ToPagedList(pageIndex ?? 1, 9)
+            };
+
             return View();
         }
     }

@@ -17881,3 +17881,7 @@ main ::-webkit-scrollbar-thumb {
     main ::-webkit-scrollbar-thumb:hover {
         background: #adadad;
     }
+
+#CreatedDate{
+    display: none;
+}

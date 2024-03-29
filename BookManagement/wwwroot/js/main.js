@@ -116,9 +116,14 @@
     // Product Quantity
     $('.quantity button').on('click', function () {
         var button = $(this);
+        let maxQuantity = parseInt(button.attr('max-quantity'));
         var oldValue = button.parent().parent().find('input').val();
         if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
+            var newVal = parseFloat(oldValue);
+
+            if (oldValue < maxQuantity) {
+                newVal = parseFloat(oldValue) + 1;
+            }
         } else {
             if (oldValue > 1) {
                 var newVal = parseFloat(oldValue) - 1;

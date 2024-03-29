@@ -5,6 +5,7 @@ namespace BookManagement.Service
 {
     public interface IBaseService<T>
     {
+        IQueryable<T> GetDbSet();
         List<T> GetAll();
         Task<T> GetEntityById(int id);
         Task<T> Get(Expression<Func<T, bool>> expresstion);

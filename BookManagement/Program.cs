@@ -27,8 +27,7 @@ builder.Services.AddSession(cfg =>
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(
-    options =>
+    .AddCookie(options =>
     {
         // Cookie settings
         options.Cookie.HttpOnly = true;
@@ -38,6 +37,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/account/login";
         options.AccessDeniedPath = "/account/accessdenied";
         options.SlidingExpiration = true;
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration.GetSection("Authentication:Google:ClientId").Value;
+        options.ClientSecret = builder.Configuration.GetSection("Authentication:Google:ClientSecret").Value;
     });
 
 builder.Services.AddTransient<IDbContext, AppDbContext>();

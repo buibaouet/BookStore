@@ -70,7 +70,7 @@ namespace BookManagement.Controllers
             var pagingResult = new PagingModel<CategoryModel>()
             {
                 TotalRecord = categories.Count(),
-                DataPaging = categories.OrderBy(x => x.CategoryCode).ToPagedList(pageIndex ?? 1, 10),
+                DataPaging = categories.OrderByDescending(x => x.UpdatedDate).ToPagedList(pageIndex ?? 1, 10),
             };
 
             return View(pagingResult);
@@ -184,7 +184,7 @@ namespace BookManagement.Controllers
             result.Paging = new PagingModel<Book>()
             {
                 TotalRecord = books.Count(),
-                DataPaging = books.OrderBy(x => x.BookName).ToPagedList(pageIndex ?? 1, 10),
+                DataPaging = books.OrderByDescending(x => x.UpdatedDate).ToPagedList(pageIndex ?? 1, 10),
             };
 
             var cate = _categoryService.GetAll();
@@ -413,7 +413,7 @@ namespace BookManagement.Controllers
             var pagingResult = new PagingModel<Voucher>()
             {
                 TotalRecord = vouchers.Count(),
-                DataPaging = vouchers.OrderBy(x => x.VoucherCode).ToPagedList(pageIndex ?? 1, 10),
+                DataPaging = vouchers.OrderByDescending(x => x.UpdatedDate).ToPagedList(pageIndex ?? 1, 10),
             };
 
             return View(pagingResult);

@@ -32,13 +32,17 @@ namespace BookManagement.Service
 
         public async Task<User> AuthenticationUser(UserModel model)
         {
-            var user = await _userService.Get(x => x.UserName.Equals(model.UserName));
+            var user = await _userService.GetList(x => x.UserName.ToLower().Trim().Equals(model.UserName.ToLower().Trim()) || x.Email.ToLower().Trim().Equals(model.UserName.ToLower().Trim()));
 
-            if (user != null)
+            if (user != null && user.Any())
             {
-                if(await ValidateHashPassword(model.Password, user.Password))
+                for (var i = 0; i < user.Count; i++)
                 {
-                    return user;
+                    var thisUser = user.ElementAt(i);
+                    if (await ValidateHashPassword(model.Password, thisUser.Password))
+                    {
+                        return thisUser;
+                    }
                 }
             }
 
