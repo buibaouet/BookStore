@@ -12,6 +12,8 @@ namespace BookManagement.Data
             CreateMap<RegisterModel, User>();
             CreateMap<CategoryModel, Category>();
             CreateMap<Category, CategoryModel>();
+            CreateMap<Order, OrderViewModel>();
+            CreateMap<OrderViewModel, Order>();
         }
     }
 }

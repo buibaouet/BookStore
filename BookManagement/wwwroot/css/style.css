@@ -70,7 +70,7 @@ body {
 
 hr {
     box-sizing: content-box;
-    height: 0;
+    height: 0 !important;
     overflow: visible;
 }
 
@@ -10459,17 +10459,17 @@ a.text-dark:hover, a.text-dark:focus {
     color: #ba6a62 !important;
 }
 
-    .nav-link-custom:hover {
-        color: #daa14d !important;
-    }
+.nav-link-custom:hover {
+    color: #daa14d !important;
+}
 
 .logout-btn {
     width: 100%;
 }
 
-.logout-btn:hover {
-    background-color: #fff;
-}
+    .logout-btn:hover {
+        background-color: #fff;
+    }
 
 .img-book-td {
     width: 55px;
@@ -10486,7 +10486,7 @@ a.text-dark:hover, a.text-dark:focus {
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-.product-img{
+.product-img {
     height: 350px;
 }
 
@@ -10510,6 +10510,7 @@ th {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .dropdown-toggle.hide-arrow::before, .dropdown-toggle.hide-arrow::after,
 .dropdown-toggle-hide-arrow > .dropdown-toggle::before,
 .dropdown-toggle-hide-arrow > .dropdown-toggle::after {
@@ -10618,6 +10619,52 @@ th {
         margin-top: 0.125rem;
     }
 
-    .w-px-100{
-        width: 100px !important;
+.w-px-100 {
+    width: 100px !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+#ctnAddCart input::-webkit-outer-spin-button,
+#ctnAddCart input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+#ctnAddCart input[type=number] {
+    -moz-appearance: textfield;
+    pointer-events: none;
+}
+
+.btn-collapse:before {
+    font-family: "Font Awesome 5 Free";
+    content: "\f077";
+    font-weight: 900;
+    display: inline-block;
+}
+
+.btn-collapse.collapsed:before {
+    content: "\f078";
+}
+
+#spinner-loading {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgb(255 255 255 / 60%);
+    z-index: 100;
+}
+
+    #spinner-loading .loading {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        align-content: center;
+        text-align: center;
+        display: grid;
+        color: black;
     }

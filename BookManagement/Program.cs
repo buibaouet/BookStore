@@ -49,6 +49,8 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserConfig, UserConfig>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var app = builder.Build();
 

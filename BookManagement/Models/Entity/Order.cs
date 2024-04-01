@@ -32,6 +32,22 @@ namespace BookManagement.Models.Entity
         /// </summary>
         public OrderStatus Status { get; set; }
         /// <summary>
+        /// Tên người nhận
+        /// </summary>
+        public string CustomerName { get; set; }
+        /// <summary>
+        /// SĐT người nhận
+        /// </summary>
+        public string PhoneNumber { get; set; }
+        /// <summary>
+        /// Địa chỉ nhận hàng
+        /// </summary>
+        public string CustomerAddress { get; set; }
+        /// <summary>
+        /// Ghi chú
+        /// </summary>
+        public string OrderNote { get; set; }
+        /// <summary>
         /// Lý do hủy đơn hàng
         /// </summary>
         public string CancelReason { get; set; }

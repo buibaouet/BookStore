@@ -85,9 +85,9 @@
                         }
                         else
                         {
-                            <a href="/cart" class="btn">
+                            <a href="/cart" class="btn cart-btn">
                                 <i class="fas fa-shopping-cart text-primary"></i>
-                                <span class="badge">0</span>
+                                <span class="badge">@ViewBag.CartCount</span>
                             </a>
 
                             <ul class="navbar-nav btn-user-circle flex-row align-items-center ml-2">
@@ -146,6 +146,13 @@
         <main role="main">
             @RenderBody()
         </main>
+    </div>
+
+    <div id="spinner-loading" class="d-none">
+        <div class="loading">
+            <div class="fas fa-spinner fa-spin fa-2x"></div>
+            <span class="loading-text">Loading...</span>
+        </div>
     </div>
 
     <footer>

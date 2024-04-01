@@ -1,0 +1,121 @@
+﻿@using BookManagement.Models.Model;
+@model CartConfirmModel
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+@section css {
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+}
+
+<!-- Cart Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="d-flex align-items-center">
+            <a href="/cart">
+                <i class="menu-icon tf-icons bx bx-arrow-back" style="font-size: 1.5em;"></i>
+            </a>
+        </div>
+        <div class="col">
+            <div class="nav nav-tabs justify-content-center border-secondary mb-4">
+                <a class="nav-item nav-link active" href="#">Giỏ hàng</a>
+                <a class="nav-item nav-link" href="/cart/waiting">Chờ lấy hàng</a>
+                <a class="nav-item nav-link" href="/cart/delivering">Đang giao hàng</a>
+                <a class="nav-item nav-link" href="/cart/ordercomplete">Hoàn thành</a>
+                <a class="nav-item nav-link" href="/cart/ordercancel">Đã hủy</a>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    @using (@Html.BeginForm("ConfirmOrder", "Cart", FormMethod.Post))
+                    {
+                        <div class="row">
+                            @Html.HiddenFor(m => m.VoucherId)
+                            <div class="col-lg-7 table-responsive mb-5">
+                                <div class="mb-4">
+                                    <h4 class="font-weight-semi-bold mb-4">Thông tin người nhận</h4>
+                                    <div class="row">
+                                        <div class="col-12 form-group">
+                                            <label>Họ tên người nhận</label>
+                                            @Html.TextBoxFor(m => m.CustomerName, new { @class="form-control", required="required", placeholder="Họ tên", maxlength="255" })
+                                            @Html.ValidationMessageFor(m=>m.CustomerName, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-md-12 form-group">
+                                            <label>Số điện thoại</label>
+                                            @Html.TextBoxFor(m => m.PhoneNumber, new { @class="form-control", required="required", placeholder="Số điện thoại" })
+                                            @Html.ValidationMessageFor(m=>m.PhoneNumber, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-12 form-group">
+                                            <label>Địa chỉ nhận hàng</label>
+                                            @Html.TextBoxFor(m => m.CustomerAddress, new { @class="form-control", required="required", placeholder="Địa chỉ", maxlength="500" })
+                                            @Html.ValidationMessageFor(m=>m.CustomerAddress, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="col-12 form-group">
+                                            <label>Ghi chú</label>
+                                            @Html.TextAreaFor(m => m.OrderNote, new { @class="form-control", rows="3" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="card border-secondary mb-4">
+                                    <div class="card-header bg-secondary border-0">
+                                        <h4 class="font-weight-semi-bold m-0">Tổng cộng</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        @{
+                                            if (ViewBag.CartInfo.CartItems != null && ViewBag.CartInfo.CartItems.Count > 0)
+                                            {
+                                                @foreach (var item in ViewBag.CartInfo.CartItems)
+                                                {
+                                                    <div class="d-flex justify-content-between mb-2 pt-1">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="align-middle">
+                                                                    <img src="/uploads/@item.BookImage" class="img-book-td mx-1" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="font-weight-medium d-block">@item.BookName</h6>
+                                                                <small class="text-muted">x(@item.Quantity)</small>
+                                                            </div>
+                                                        </div>
+                                                        <h6 class="font-weight-medium">@(item.TotalMoney.ToString("#,##0")) đ</h6>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                        <hr class="mt-0">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <h6 class="font-weight-medium">Tổng</h6>
+                                            <h6 class="font-weight-medium">@(ViewBag.CartInfo.GrossMoney.ToString("#,##0")) đ</h6>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <h6 class="font-weight-medium">Phí vận chuyển</h6>
+                                            <h6 class="font-weight-medium">@(Model.ShipCost.ToString("#,##0")) đ</h6>
+                                            @Html.HiddenFor(m => m.ShipCost)
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="font-weight-medium">Khuyến mại:</h6>
+                                            <h6 class="font-weight-medium text-muted"><del>@(Model.Discount.ToString("#,##0")) đ</del></h6>
+                                            @Html.HiddenFor(m => m.Discount)
+                                        </div>
+                                    </div>
+                                    <div class="card-footer border-secondary bg-transparent">
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <h5 class="font-weight-bold">Tổng tiền:</h5>
+                                            <h5 class="font-weight-bold">@(Model.TotalMoney.ToString("#,##0")) đ</h5>
+                                            @Html.HiddenFor(m => m.TotalMoney)
+                                        </div>
+
+                                        <button type="submit" class="btn btn-block btn-primary mt-3 py-3">Xác nhận</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

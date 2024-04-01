@@ -20,18 +20,21 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Category> _categoryService;
         private readonly IBaseService<Voucher> _voucherService;
         private readonly IBaseService<Book> _bookService;
+        private readonly ICartService _cartService;
         private readonly IMapper _mapper;
 
         public AdminController(IBaseService<Category> categoryService,
             IWebHostEnvironment environment,
             IBaseService<Voucher> voucherService,
             IBaseService<Book> bookService,
+            ICartService cartService,
             IMapper mapper)
         {
             _hostingEnvironment = environment;
             _categoryService = categoryService;
             _voucherService = voucherService;
             _bookService = bookService;
+            _cartService = cartService;
             _mapper = mapper;
         }
 
@@ -369,27 +372,35 @@ namespace BookManagement.Controllers
         #region Cart Management
         //GET: /Admin/WaitingDelivery
         [HttpGet]
-        public IActionResult WaitingDelivery()
+        public async Task<IActionResult> WaitingDelivery(int? pageIndex)
         {
-            return View();
+            var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Waiting, pageIndex);
+
+            return View(pagingResult);
         }
         //GET: /Admin/Delivering
         [HttpGet]
-        public IActionResult Delivering()
+        public async Task<IActionResult> Delivering(int? pageIndex)
         {
-            return View();
+            var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Shipping, pageIndex);
+
+            return View(pagingResult);
         }
         //GET: /Admin/OrderComplete
         [HttpGet]
-        public IActionResult OrderComplete()
+        public async Task<IActionResult> OrderComplete(int? pageIndex)
         {
-            return View();
+            var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Complete, pageIndex);
+
+            return View(pagingResult);
         }
         //GET: /Admin/OrderCancel
         [HttpGet]
-        public IActionResult OrderCancel()
+        public async Task<IActionResult> OrderCancel(int? pageIndex)
         {
-            return View();
+            var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Cancel, pageIndex);
+
+            return View(pagingResult);
         }
         #endregion
 

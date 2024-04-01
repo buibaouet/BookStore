@@ -29,6 +29,8 @@
                     <th>Tên khuyến mại</th>
                     <th>Số lượng</th>
                     <th>Đã sử dụng</th>
+                    <th>Giảm giá</th>
+                    <th>Đơn tối thiểu</th>
                     <th>Trạng thái</th>
                     <th class="action">Hành động</th>
                 </tr>
@@ -44,6 +46,8 @@
                                 <td>@item.VoucherName</td>
                                 <td>@item.Quantity</td>
                                 <td>@item.UsedNumber</td>
+                                <td>@(item.Discount.ToString("#,##0")) đ</td>
+                                <td>@(item.MinAmount.ToString("#,##0")) đ</td>
                                 <td><span class="badge @(item.IsActive ? "bg-label-success" : "bg-label-danger") me-1">@(item.IsActive ? "Đang hoạt động" : "Không hoạt động")</span></td>
                                 <td class="action">
                                     <div class="d-flex h-100">
@@ -57,7 +61,7 @@
                     else
                     {
                         <tr class="empty-table">
-                            <td colspan="6">
+                            <td colspan="8">
                                 <div class="ctn-empty-table w-100 my-5 text-center">
                                     <img src="~/img/empty_data_icon.png" class="w-px-100" />
                                     <div>Không có dữ liệu</div>
@@ -96,21 +100,39 @@
             <div class="modal-body">
                 <div class="row g-2">
                     <div class="col mb-3">
-                        <label class="form-label">Mã khuyến mại</label>
+                        <label field="voucherCode" class="form-label">Mã khuyến mại</label>
                         <input type="text" maxlength="6" required="required" id="voucherCode" name="voucherCode" class="form-control" placeholder="Nhập mã" />
-                        <span class="text-danger field-validation-valid"></span>
+                        <span field="voucherCode" class="text-danger field-validation-valid"></span>
                     </div>
                     <div class="col mb-3">
-                        <label class="form-label">Số lượng</label>
+                        <label field="quantity" class="form-label">Số lượng</label>
                         <input type="number" required="required" max="1000" id="quantity" name="quantity" class="form-control" placeholder="Số lượng" />
-                        <span class="text-danger field-validation-valid"></span>
+                        <span field="quantity" class="text-danger field-validation-valid"></span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col mb-0">
-                        <label class="form-label">Tên khuyến mại</label>
+                        <label field="voucherName" class="form-label">Tên khuyến mại</label>
                         <input type="text" maxlength="500" required="required" id="voucherName" name="voucherName" class="form-control" placeholder="Nhập tên" />
-                        <span class="text-danger field-validation-valid"></span>
+                        <span field="voucherName" class="text-danger field-validation-valid"></span>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col mb-3">
+                        <label field="discount" class="form-label">Giảm giá</label>
+                        <div class="input-group">
+                            <input type="number" required="required" id="discount" name="discount" class="form-control" placeholder="Giảm giá" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <span field="discount" class="text-danger field-validation-valid"></span>
+                    </div>
+                    <div class="col mb-3">
+                        <label field="minAmount" class="form-label">Đơn tối thiểu</label>
+                        <div class="input-group">
+                            <input type="number" required="required" id="minAmount" name="minAmount" class="form-control" placeholder="Đơn tối thiểu" value="0" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <span field="minAmount" class="text-danger field-validation-valid"></span>
                     </div>
                 </div>
             </div>
@@ -143,6 +165,9 @@
             editMode = "Edit";
             clearValueInput();
 
+            // Disable mã voucher
+            $('.modal [name="voucherCode"]').prop('disabled', true);
+
             $.ajax({
                 url: '/admin/voucherbyid?id=' + id,
                 dataType: "json",
@@ -172,12 +197,14 @@
         }
 
         $('.modal input[required="required"]').on('blur', function () {
+            let prop = $(this).attr('name');
+
             if ($(this).val() != '') {
-                $(this).next().text('');
+                $(`span[field="${prop}"]`).text('');
             }
             else {
-                let label = $(this).prev().text();
-                $(this).next().text(label + ' không được để trống');
+                let label = $(`label[field="${prop}"]`).text();
+                $(`span[field="${prop}"]`).text(label + ' không được để trống');
             }
         })
 
@@ -200,13 +227,15 @@
             var valid = true;
 
             $('#voucherModal input[required="required"]').each(function (i, el) {
+                let prop = $(this).attr('name');
+
                 if ($(el).val() != '') {
-                    $(el).next().text('');
+                    $(`span[field="${prop}"]`).text('');
                 }
                 else {
                     valid = false;
-                    let label = $(el).prev().text();
-                    $(el).next().text(label + ' không được để trống');
+                    let label = $(`label[field="${prop}"]`).text();
+                    $(`span[field="${prop}"]`).text(label + ' không được để trống');
                 }
             });
 
@@ -218,6 +247,10 @@
                 else if (entity.quantity > 10000) {
                     valid = false;
                     $('#voucherModal #quantity').next().text('Số lượng phải nhỏ hơn 10.000');
+                }
+                else if (!entity.discount || entity.discount <= 0) {
+                    valid = false;
+                    $(`span[field="discount"]`).text('Giảm giá không hợp lệ');
                 }
             }
 

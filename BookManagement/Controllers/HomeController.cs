@@ -5,7 +5,6 @@ using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using X.PagedList;
 using static BookManagement.Constant.Enumerations;
 
@@ -18,16 +17,22 @@ namespace BookManagement.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IBaseService<Category> _categoryService;
         private readonly IBaseService<Book> _bookService;
+        private readonly IBaseService<Cart> _cartService;
+        private readonly IUserConfig _userConfig;
 
         public HomeController(IMapper mapper,
             ILogger<HomeController> logger,
             IBaseService<Category> categoryService,
+            IBaseService<Cart> cartService,
+            IUserConfig userConfig,
             IBaseService<Book> bookService)
         {
             _logger = logger;
             _categoryService = categoryService;
             _bookService = bookService;
+            _cartService = cartService;
             _mapper = mapper;
+            _userConfig = userConfig;
         }
 
         public async Task<IActionResult> Index()
@@ -39,6 +44,9 @@ namespace BookManagement.Controllers
             ViewBag.BookNews = books.OrderByDescending(x => x.CreatedDate).Skip(0).Take(8).ToList();
             // Set vào ViewBag
             ViewBag.CategoryList = _categoryService.GetAll();
+
+            var userId = _userConfig.GetUserId();
+            ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
 
             return View();
         }
@@ -64,6 +72,9 @@ namespace BookManagement.Controllers
             }
 
             ViewBag.RelatedBooks = relatedBooks;
+
+            var userId = _userConfig.GetUserId();
+            ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
 
             return View();
         }
@@ -105,6 +116,9 @@ namespace BookManagement.Controllers
                 TotalRecord = books.Count(),
                 DataPaging = dataPaging.ToPagedList(pageIndex ?? 1, 9)
             };
+
+            var userId = _userConfig.GetUserId();
+            ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
 
             return View();
         }

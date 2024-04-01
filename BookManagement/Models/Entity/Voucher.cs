@@ -22,6 +22,14 @@
         /// </summary>
         public int UsedNumber { get; set; }
         /// <summary>
+        /// Giảm giá bao nhiêu
+        /// </summary>
+        public int Discount { get; set; }
+        /// <summary>
+        /// Đơn tối thiểu bao nhiêu
+        /// </summary>
+        public int MinAmount { get; set; }
+        /// <summary>
         /// Trạng thái
         /// </summary>
         public bool IsActive { get; set; }
