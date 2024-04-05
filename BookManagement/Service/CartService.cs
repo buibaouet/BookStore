@@ -11,6 +11,7 @@ namespace BookManagement.Service
     public class CartService : BaseService<Cart>, ICartService
     {
         private readonly IMapper _mapper;
+        private readonly IBaseService<User> _userService;
         private readonly IBaseService<Book> _bookService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<Voucher> _voucherService;
@@ -18,6 +19,7 @@ namespace BookManagement.Service
 
         public CartService(IGenericRepository<Cart> baseRepo,
             ILogger<Cart> logger,
+            IBaseService<User> userService,
             IBaseService<Book> bookService,
             IBaseService<Order> orderService,
             IBaseService<Voucher> voucherService,
@@ -25,6 +27,7 @@ namespace BookManagement.Service
             IMapper mapper) : base(baseRepo, logger)
         {
             _mapper = mapper;
+            _userService = userService;
             _bookService = bookService;
             _orderService = orderService;
             _voucherService = voucherService;
@@ -101,16 +104,56 @@ namespace BookManagement.Service
 
             foreach (var order in orderData)
             {
+                var user = await _userService.GetEntityById(order.UserId);
+                order.UserName = user.UserName;
+
                 order.OrderDetails = await _orderDetailService.GetList(x => x.OrderId == order.Id);
             }
 
             var pagingResult = new PagingModel<OrderViewModel>()
             {
                 TotalRecord = orders.Count(),
-                DataPaging = orderData.OrderByDescending(x => x.CreatedDate).ToPagedList(pageIndex ?? 1, 10),
+                DataPaging = orderData.OrderByDescending(x => x.UpdatedDate).ToPagedList(pageIndex ?? 1, 10),
             };
 
             return pagingResult;
+        }
+
+        public async Task UpdateOrderStatus(int orderId, OrderStatus status)
+        {
+            var order = await _orderService.GetEntityById(orderId);
+
+            if(order != null)
+            {
+                order.Status = status;
+                await _orderService.Update(order);
+            }
+        }
+
+        public async Task CancelOrder(int orderId, string reason)
+        {
+            var order = await _orderService.GetEntityById(orderId);
+
+            if(order != null)
+            {
+                order.Status = OrderStatus.Cancel;
+                order.CancelReason = reason;
+                await _orderService.Update(order);
+
+                // Update cộng lại số sách trong đơn vào số lượng
+                var orderDetail = await _orderDetailService.GetList(x=>x.OrderId == order.Id);
+
+                foreach (var item in orderDetail)
+                {
+                    var book = await _bookService.GetEntityById(item.BookId);
+
+                    if(book!= null)
+                    {
+                        book.Quantity += item.Quantity;
+                        await _bookService.Update(book);
+                    }
+                }
+            }
         }
     }
 }

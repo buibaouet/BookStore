@@ -8,5 +8,7 @@ namespace BookManagement.Service
     {
         Task CreateNewOrder(int userId, CartConfirmModel model);
         Task<PagingModel<OrderViewModel>> GetPagingOrder(OrderStatus status, int? pageIndex, int? userId = null);
+        Task UpdateOrderStatus(int orderId, OrderStatus status);
+        Task CancelOrder(int orderId, string reason);
     }
 }

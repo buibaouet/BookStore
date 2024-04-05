@@ -1,4 +1,5 @@
-﻿@using BookManagement.Models.Model;
+﻿@using BookManagement.Constant;
+@using BookManagement.Models.Model;
 @using System.Globalization;
 @using X.PagedList;
 @using X.PagedList.Mvc.Core;
@@ -13,11 +14,6 @@
 }
 
 @section css {
-}
-
-@section scripts {
-    <!-- JavaScript Libraries -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 }
 
 <div class="row">
@@ -65,7 +61,13 @@
                             {
                                 <div class="card mt-4">
                                     <div class="card-header bg-secondary border-0">
-                                        <h6 class="font-weight-semi-bold m-0">@(item.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avt-order-item">
+                                                <img src="/img/user-icon.png" class="h-100 w-100 rounded-circle">
+                                            </div>
+                                            <h6 class="font-weight-semi-bold my-0 mx-1">@item.UserName</h6>
+                                            <small>(@(item.UpdatedDate.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)))</small>
+                                        </div>
                                     </div>
                                     <div class="card-body mt-2">
                                         <div class="row">
@@ -114,10 +116,10 @@
                                         <h6 class="font-weight-medium m-0">Ghi chú: <small>@item.OrderNote</small></h6>
                                     </div>
                                     <div class="mb-3 me-3 d-flex" style="align-self: self-end;">
-                                        <button class="btn d-block btn-primary me-1" style="width: fit-content;">
+                                        <button class="btn d-block btn-primary me-1" onclick="cancelOrder(@item.Id)" style="width: fit-content;">
                                             Hủy đơn hàng
                                         </button>
-                                        <button class="btn d-block btn-primary ms-1" style="width: fit-content;">
+                                        <button class="btn d-block btn-primary ms-1" onclick="deliveryOrder(@item.Id)" style="width: fit-content;">
                                             Sẵn sàng giao
                                         </button>
                                     </div>
@@ -137,3 +139,104 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col mb-3">
+                        <label class="form-label">Lý do hủy <span style="color: red;">*</span></label>
+                        <select class="form-select navbar-detached" id="selectReason">
+                            <option value="0">Chọn lý do hủy</option>
+                            <option value="@Enumerations.ReasonCancelShop.SoldOut">Hết hàng</option>
+                            <option value="@Enumerations.ReasonCancelShop.NoContact">Không liên hệ được khách hàng</option>
+                            <option value="@Enumerations.ReasonCancelShop.Other">Lý do khác</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex align-items-center">
+                <button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">Đóng</button>
+                <button id="btnSave" class="btn btn-primary" onclick="confirmCancel()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+    <!-- JavaScript Libraries -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $('#cancelReasonModal #selectReason').on('click', function () {
+            $('#cancelReasonModal #selectReason').removeClass("is-invalid");
+        })
+
+        function cancelOrder(orderId) {
+            $('#cancelReasonModal #selectReason').attr("order-id", orderId);
+            $('#cancelReasonModal #selectReason').removeClass("is-invalid");
+
+            $('#cancelReasonModal').modal('show');
+        }
+
+        function confirmCancel() {
+            let reason = $('#cancelReasonModal #selectReason').find(":selected").val(),
+                orderId = parseInt($('#cancelReasonModal #selectReason').attr('order-id'));
+
+            if (reason && reason != "0") {
+                $.ajax({
+                    url: `/cart/CancelOrderShop?orderId=${orderId}&reason=${reason}`,
+                    dataType: "json",
+                    type: 'PUT',
+                    contentType: 'application/json; charset=utf-8',
+                    async: true,
+                    success: function (data) {
+                        window.location.href = data.redirectToUrl;
+                    },
+                    error: function (xhr) {
+                        showErrorToast('Có lỗi xảy ra trong quá trình xử lý.');
+                    }
+                });
+            }
+            else {
+                $('#cancelReasonModal #selectReason').addClass("is-invalid");
+            }
+        }
+
+        function deliveryOrder(orderId) {
+            $.ajax({
+                url: `/cart/UpdateOrderStatus?orderId=${orderId}&status=${'@Enumerations.OrderStatus.Shipping'}`,
+                dataType: "json",
+                type: 'PUT',
+                contentType: 'application/json; charset=utf-8',
+                async: true,
+                success: function (data) {
+                    window.location.href = data.redirectToUrl;
+                },
+                error: function (xhr) {
+                    showErrorToast('Có lỗi xảy ra trong quá trình xử lý.');
+                }
+            });
+        }
+
+        function showErrorToast(msg) {
+            $('.toast-placement').removeClass('bg-success').addClass('bg-danger');
+            $('.toast-placement .title').text('Thất bại');
+            $('.toast-placement .toast-body').text(msg);
+            $('.toast-placement').toast('show');
+        }
+
+        function showSuccessToast(msg) {
+            $('.toast-placement').removeClass('bg-danger').addClass('bg-success');
+            $('.toast-placement .title').text('Thành công');
+            $('.toast-placement .toast-body').text(msg);
+            $('.toast-placement').toast('show');
+        }
+    </script>
+}

@@ -10668,3 +10668,12 @@ th {
         display: grid;
         color: black;
     }
+.avt-order-item {
+    width: 26px !important;
+    height: 26px !important;
+}
+
+.view-more a{
+    font-size: 17px;
+    font-weight: 500;
+}

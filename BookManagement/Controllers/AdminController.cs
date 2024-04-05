@@ -382,6 +382,16 @@ namespace BookManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> Delivering(int? pageIndex)
         {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
             var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Shipping, pageIndex);
 
             return View(pagingResult);
@@ -398,6 +408,16 @@ namespace BookManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> OrderCancel(int? pageIndex)
         {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
             var pagingResult = await _cartService.GetPagingOrder(Enumerations.OrderStatus.Cancel, pageIndex);
 
             return View(pagingResult);

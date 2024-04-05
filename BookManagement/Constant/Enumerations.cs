@@ -2,10 +2,10 @@
 {
     public class Enumerations
     {
-        public enum ToastType: int
+        public enum ToastType : int
         {
-            None = 0, 
-            Success = 1, 
+            None = 0,
+            Success = 1,
             Error = 2,
             Warning = 3,
         }
@@ -31,6 +31,22 @@
             Sell = 2,
             Cheap = 3,
             Expensive = 4,
+        }
+
+        public enum ReasonCancel : int
+        {
+            ChangeInfo = 1, // Thay đổi thông tin giao hàng
+            NotBuy = 2, // Đổi ý, không muốn mua nữa
+            WrongOrder = 3, // Đặt nhầm sản phẩm 
+            NotVoucher = 4, // Chưa áp mã giảm giá
+            Other = 5, // Lý do khác
+        }
+
+        public enum ReasonCancelShop : int
+        {
+            SoldOut = 1, // Hết hàng
+            NoContact = 2, // Không liên hệ được khách hàng
+            Other = 3, // Lý do khác
         }
     }
 }

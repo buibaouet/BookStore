@@ -46,10 +46,10 @@ namespace BookManagement.Models.Entity
         /// <summary>
         /// Ghi chú
         /// </summary>
-        public string OrderNote { get; set; }
+        public string? OrderNote { get; set; }
         /// <summary>
         /// Lý do hủy đơn hàng
         /// </summary>
-        public string CancelReason { get; set; }
+        public string? CancelReason { get; set; }
     }
 }

@@ -47,7 +47,13 @@
                             {
                                 <div class="card border-secondary mb-5">
                                     <div class="card-header bg-secondary border-0">
-                                        <h6 class="font-weight-semi-bold m-0">@(item.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avt-order-item">
+                                                <img src="/img/user-icon.png" class="h-100 w-100 rounded-circle">
+                                            </div>
+                                            <h6 class="font-weight-semi-bold my-0 mx-1">@item.UserName</h6>
+                                            <small>(@(item.UpdatedDate.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)))</small>
+                                        </div>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">

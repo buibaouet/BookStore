@@ -17897,3 +17897,8 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
 }
+
+.avt-order-item {
+    width: 26px !important;
+    height: 26px !important;
+}
