@@ -51,6 +51,7 @@ builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserConfig, UserConfig>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 var app = builder.Build();
 

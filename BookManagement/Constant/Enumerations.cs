@@ -48,5 +48,12 @@
             NoContact = 2, // Không liên hệ được khách hàng
             Other = 3, // Lý do khác
         }
+
+        public enum DashboardViewType : int
+        {
+            Week = 1, // Tuần
+            Month = 2, // Tháng
+            Quarter = 3, // Quý
+        }
     }
 }

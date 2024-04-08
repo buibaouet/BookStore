@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Drawing;
 using System.Drawing.Imaging;
 using X.PagedList;
+using static BookManagement.Constant.Enumerations;
 
 namespace BookManagement.Controllers
 {
@@ -19,30 +20,41 @@ namespace BookManagement.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IBaseService<Category> _categoryService;
         private readonly IBaseService<Voucher> _voucherService;
+        private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<Book> _bookService;
+        private readonly IBaseService<User> _userService;
+        private readonly IAdminService _adminService;
         private readonly ICartService _cartService;
         private readonly IMapper _mapper;
 
         public AdminController(IBaseService<Category> categoryService,
             IWebHostEnvironment environment,
             IBaseService<Voucher> voucherService,
+            IBaseService<Order> orderService,
             IBaseService<Book> bookService,
+            IBaseService<User> userService,
+            IAdminService adminService,
             ICartService cartService,
             IMapper mapper)
         {
             _hostingEnvironment = environment;
             _categoryService = categoryService;
             _voucherService = voucherService;
+            _adminService = adminService;
+            _orderService = orderService;
             _bookService = bookService;
             _cartService = cartService;
+            _userService = userService;
             _mapper = mapper;
         }
 
         //GET: /Admin/Dashboard
         [HttpGet]
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard(int? viewType)
         {
-            return View();
+            var model = await _adminService.GetDashboardOverview(viewType);
+
+            return View(model);
         }
 
         #region Category Management
@@ -319,53 +331,13 @@ namespace BookManagement.Controllers
         {
             if (!string.IsNullOrEmpty(upload.BookImageUri))
             {
-                var imgName = Guid.NewGuid().ToString();
-
-                using (Image image = Base64ToImage(upload.BookImageUri))
-                {
-                    string bookDetailImageUri = "\\wwwroot\\uploads\\" + imgName + ".jpg";
-                    string strFileName = Directory.GetCurrentDirectory() + bookDetailImageUri;
-                    image.Save(strFileName, ImageFormat.Jpeg);
-
-                    if (System.IO.File.Exists(strFileName))
-                    {
-                        return Json(new { Success = true, FileName = imgName + ".jpg" });
-                    }
-                    else
-                    {
-                        return Json(new { Success = false });
-                    }
-                }
+                var result = _adminService.UploadImage(upload);
+                return Json(result);
             }
             else
             {
                 return Json(new { Success = false });
             }
-        }
-
-        /// <summary>
-        /// Convert từ Base64 sang Image
-        /// </summary>
-        /// <param name="base64String"></param>
-        /// <returns></returns>
-        private Image Base64ToImage(string base64String)
-        {
-            // Convert Base64 String to byte[]
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-            Bitmap tempBmp;
-            using (MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length))
-            {
-                // Convert byte[] to Image
-                ms.Write(imageBytes, 0, imageBytes.Length);
-                using (Image image = Image.FromStream(ms, true))
-                {
-                    //Create another object image for dispose old image handler
-                    tempBmp = new Bitmap(image.Width, image.Height);
-                    Graphics g = Graphics.FromImage(tempBmp);
-                    g.DrawImage(image, 0, 0, image.Width, image.Height);
-                }
-            }
-            return tempBmp;
         }
         #endregion
 
@@ -529,5 +501,41 @@ namespace BookManagement.Controllers
             return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
         }
         #endregion
+
+        //GET: /Admin/UserManagement
+        [HttpGet]
+        public async Task<IActionResult> UserManagement(int? pageIndex, string? keyword)
+        {
+            var result = new UserPagingModel()
+            {
+                Keyword = keyword,
+                Paging = new PagingModel<UserManagementModel>()
+            };
+
+            var users = await _userService.GetList(x => string.IsNullOrEmpty(keyword) ? x.Id > 0 : (x.UserName.ToLower().Contains(keyword.ToLower().Trim())
+                || x.LastName.ToLower().Contains(keyword.ToLower().Trim()) || x.FirstName.ToLower().Contains(keyword.ToLower().Trim())));
+
+            var orders = await _orderService.GetList(x => users.Select(x => x.Id).Contains(x.UserId));
+
+            var userJoin = users.Select(u => new UserManagementModel()
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                CreatedDate = u.CreatedDate,
+                TotalMoney = orders.Where(x => x.UserId == u.Id).Sum(x => x.TotalMoney),
+                TotalOrder = orders.Where(x => x.UserId == u.Id).Count(),
+            });
+
+            result.Paging = new PagingModel<UserManagementModel>()
+            {
+                TotalRecord = users.Count(),
+                DataPaging = userJoin.OrderByDescending(x => x.CreatedDate).ToPagedList(pageIndex ?? 1, 10),
+            };
+
+            return View(result);
+        }
     }
 }

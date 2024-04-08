@@ -42,7 +42,8 @@
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="~/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="~/assets/vendor/libs/apex-charts/apex-charts.css" />
     <!-- Page CSS -->
     @if (IsSectionDefined("css"))
     {
@@ -113,7 +114,7 @@
                     </li>
 
                     <li class="menu-item @(ViewBag.Menu == 6 ? "active" : "")">
-                        <a href="javascript:void(0);" class="menu-link">
+                        <a href="/admin/usermanagement" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
                             <div>Quản lý người dùng</div>
                         </a>
@@ -264,6 +265,9 @@
     <!-- endbuild -->
     <!-- Main JS -->
     <script src="~/assets/js/main.js"></script>
+
+    <!-- Vendors JS -->
+    <script src="~/assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>

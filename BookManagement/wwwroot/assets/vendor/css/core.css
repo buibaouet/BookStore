@@ -14345,6 +14345,10 @@ button.bg-secondary:focus {
     text-align: center !important;
 }
 
+.text-webkit-center {
+    text-align: -webkit-center !important;
+}
+
 .rounded-end {
     border-top-right-radius: 0.375rem !important;
     border-bottom-right-radius: 0.375rem !important;
@@ -17901,4 +17905,25 @@ input[type=number] {
 .avt-order-item {
     width: 26px !important;
     height: 26px !important;
+}
+
+.explain-color {
+    width: 15px !important;
+    height: 15px;
+}
+    .explain-color.cl-primary {
+        background-color: #696cff;
+    }
+    .explain-color.cl-secondary {
+        background-color: #8592a3;
+    }
+    .explain-color.cl-success {
+        background-color: #71dd37;
+    }
+    .explain-color.cl-info {
+        background-color: #03c3ec;
+    }
+.tbl-best-seller {
+    max-height: 440px;
+    overflow: scroll;
 }
