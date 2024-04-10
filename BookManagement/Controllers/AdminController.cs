@@ -21,6 +21,7 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Category> _categoryService;
         private readonly IBaseService<Voucher> _voucherService;
         private readonly IBaseService<Order> _orderService;
+        private readonly IBaseService<News> _newsService;
         private readonly IBaseService<Book> _bookService;
         private readonly IBaseService<User> _userService;
         private readonly IAdminService _adminService;
@@ -31,6 +32,7 @@ namespace BookManagement.Controllers
             IWebHostEnvironment environment,
             IBaseService<Voucher> voucherService,
             IBaseService<Order> orderService,
+            IBaseService<News> newsService,
             IBaseService<Book> bookService,
             IBaseService<User> userService,
             IAdminService adminService,
@@ -42,6 +44,7 @@ namespace BookManagement.Controllers
             _voucherService = voucherService;
             _adminService = adminService;
             _orderService = orderService;
+            _newsService = newsService;
             _bookService = bookService;
             _cartService = cartService;
             _userService = userService;
@@ -536,6 +539,98 @@ namespace BookManagement.Controllers
             };
 
             return View(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> NewsManagement(int? pageIndex, string? keyword)
+        {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
+            var result = new NewsPagingModel()
+            {
+                Keyword = keyword,
+                Paging = new PagingModel<News>()
+            };
+
+            var news = await _newsService.GetList(x => string.IsNullOrEmpty(keyword) ? x.Id > 0 : x.Title.ToLower().Contains(keyword.ToLower().Trim()));
+
+            result.Paging = new PagingModel<News>()
+            {
+                TotalRecord = news.Count(),
+                DataPaging = news.OrderByDescending(x => x.CreatedDate).ToPagedList(pageIndex ?? 1, 10),
+            };
+
+            return View(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> NewsDetail(int? id)
+        {
+            if (id != null)
+            {
+                ViewData["HeaderTitle"] = "Sửa tin tức";
+            }
+            else
+            {
+                ViewData["HeaderTitle"] = "Thêm tin tức";
+            }
+
+            var news = (await _newsService.GetEntityById(id ?? 0)) ?? new News();
+
+            return View(news);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewsDetail(News model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.Id != 0)
+                {
+                    await _newsService.Update(model);
+
+                    TempData["ToastMessage"] = "Cập nhật tin tức thành công.";
+                    TempData["ToastType"] = Constants.Success;
+                    return RedirectToAction("NewsManagement");
+                }
+                else
+                {
+                    await _newsService.Insert(model);
+
+                    TempData["ToastMessage"] = "Thêm tin tức thành công.";
+                    TempData["ToastType"] = Constants.Success;
+                    return RedirectToAction("NewsManagement");
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteNews(int id)
+        {
+            var redirectUrl = Url.Action("NewsManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                await _newsService.Delete(id);
+
+                TempData["ToastMessage"] = "Xóa tin tức thành công.";
+                TempData["ToastType"] = Constants.Success;
+                return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
         }
     }
 }

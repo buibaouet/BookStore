@@ -10677,3 +10677,14 @@ th {
     font-size: 17px;
     font-weight: 500;
 }
+
+.news-item .news-img {
+    width: 200px;
+    height: 130px;
+    flex-shrink: 0;
+}
+
+.title-break {
+    word-wrap: break-word;
+    white-space: normal;
+}

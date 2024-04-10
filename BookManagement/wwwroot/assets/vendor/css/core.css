@@ -17927,3 +17927,7 @@ input[type=number] {
     max-height: 440px;
     overflow: scroll;
 }
+
+.img-new-height{
+    height: 240px !important;
+}

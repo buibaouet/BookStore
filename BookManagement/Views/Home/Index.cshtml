@@ -201,3 +201,32 @@
     </div>
 </div>
 <!-- Products End -->
+<!-- Products Start -->
+<div class="container-fluid pt-5">
+    <div class="text-center">
+        <h2 class="section-title px-5"><span class="px-2">Tin tức</span></h2>
+    </div>
+    <div class="d-flex flex-row-reverse view-more px-xl-5 pb-2">
+        <a href="/home/news">Xem thêm <i class="fa fa-angle-double-right"></i></a>
+    </div>
+    <div class="row px-xl-5 pb-3">
+        @{
+            if (ViewBag.News != null && ViewBag.News.Count > 0)
+            {
+                foreach (var news in ViewBag.News)
+                {
+                    <div class="col-lg-6 col-md-12 d-flex news-item mb-4" role="button" title="@news.Title" onclick="location.href='/home/newsdetail?id=@news.Id'">
+                        <div class="news-img p-0">
+                            <img class="img-fluid w-100 h-100 object-fit-contain" src="/uploads/@news.NewsImage" alt="Ảnh bìa sách">
+                        </div>
+                        <div class="border-right p-2 pb-0">
+                            <h5 class="text-truncate title-break mb-2">@news.Title</h5>
+                            <div class="sold-number">@news.Summary</div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+</div>
+<!-- Products End -->

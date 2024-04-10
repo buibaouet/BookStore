@@ -18,12 +18,14 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Category> _categoryService;
         private readonly IBaseService<Book> _bookService;
         private readonly IBaseService<Cart> _cartService;
+        private readonly IBaseService<News> _newsService;
         private readonly IUserConfig _userConfig;
 
         public HomeController(IMapper mapper,
             ILogger<HomeController> logger,
             IBaseService<Category> categoryService,
             IBaseService<Cart> cartService,
+            IBaseService<News> newsService,
             IUserConfig userConfig,
             IBaseService<Book> bookService)
         {
@@ -33,6 +35,7 @@ namespace BookManagement.Controllers
             _cartService = cartService;
             _mapper = mapper;
             _userConfig = userConfig;
+            _newsService = newsService;
         }
 
         public async Task<IActionResult> Index()
@@ -44,7 +47,7 @@ namespace BookManagement.Controllers
             ViewBag.BookNews = books.OrderByDescending(x => x.CreatedDate).Skip(0).Take(8).ToList();
             // Set vào ViewBag
             ViewBag.CategoryList = _categoryService.GetAll();
-
+            ViewBag.News = _newsService.GetDbSet().OrderByDescending(x => x.CreatedDate).Skip(0).Take(6).ToList();
             var userId = _userConfig.GetUserId();
             ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
 
@@ -116,6 +119,35 @@ namespace BookManagement.Controllers
                 TotalRecord = books.Count(),
                 DataPaging = dataPaging.ToPagedList(pageIndex ?? 1, 9)
             };
+
+            var userId = _userConfig.GetUserId();
+            ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
+
+            return View();
+        }
+
+        public async Task<IActionResult> News(int? pageIndex)
+        {
+            var userId = _userConfig.GetUserId();
+            ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
+
+            var news = _newsService.GetDbSet().ToList();
+
+            var result = new PagingModel<News>()
+            {
+                TotalRecord = news.Count(),
+                DataPaging = news.OrderByDescending(x => x.CreatedDate).ToPagedList(pageIndex ?? 1, 10),
+            };
+
+            return View(result);
+        }
+
+        public async Task<IActionResult> NewsDetail(int id)
+        {
+            ViewBag.News = await _newsService.GetEntityById(id);
+
+            var relatedNews = _newsService.GetDbSet().Where(x => x.Id != id).OrderByDescending(x => x.CreatedDate).Skip(0).Take(6).ToList();
+            ViewBag.RelatedNews = relatedNews;
 
             var userId = _userConfig.GetUserId();
             ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
