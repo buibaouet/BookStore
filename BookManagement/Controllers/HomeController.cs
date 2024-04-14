@@ -92,7 +92,7 @@ namespace BookManagement.Controllers
             ViewBag.CategoryName = cate?.CategoryName ?? string.Empty;
 
             var books = await _bookService.GetList(x => (string.IsNullOrEmpty(keyword) ? x.Id > 0 : x.BookName.ToLower().Contains(keyword.ToLower().Trim()))
-                && (categoryId != null && categoryId != 0 ? x.CategoryId == categoryId : x.Id > 0));
+                && (categoryId != null && categoryId != 0 ? x.CategoryId == categoryId : x.Id > 0) && x.IsActive);
 
             var dataPaging = books.OrderBy(x => x.BookName);
 
@@ -105,10 +105,10 @@ namespace BookManagement.Controllers
                     dataPaging = books.OrderByDescending(x => x.SoldQuantity);
                     break;
                 case (int)SortType.Cheap:
-                    dataPaging = books.OrderBy(x => (x.PriceDiscount ?? x.Price));
+                    dataPaging = books.OrderBy(x => x.PriceDiscount ?? x.Price);
                     break;
                 case (int)SortType.Expensive:
-                    dataPaging = books.OrderByDescending(x => (x.PriceDiscount ?? x.Price));
+                    dataPaging = books.OrderByDescending(x => x.PriceDiscount ?? x.Price);
                     break;
                 default:
                     break;

@@ -56,7 +56,7 @@ namespace BookManagement.Service
 
             // Insert Detail
             var cartList = await this.GetList(x => x.UserId == userId);
-            var books = await _bookService.GetList(x => cartList.Select(x => x.BookId).Contains(x.Id));
+            var books = await _bookService.GetList(x => cartList.Select(x => x.BookId).Contains(x.Id) && x.IsActive);
 
             var joinBook = from c in cartList
                            join b in books on c.BookId equals b.Id

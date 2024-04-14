@@ -153,10 +153,14 @@
                                 <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
                                     <h6 class="text-truncate mb-3">@book.BookName</h6>
                                     <div class="d-flex justify-content-center">
-                                        <h6>@(book.Price.ToString("#,##0")) đ</h6>
                                         @if (book.PriceDiscount != null)
                                         {
-                                            <h6 class="text-muted ml-2"><del>@(string.Concat(((int)book.PriceDiscount).ToString("#,##0"), " đ"))</del></h6>
+                                            <h6>@(book.PriceDiscount.ToString("#,##0")) đ</h6>
+                                            <h6 class="text-muted ml-2"><del>@(string.Concat(((int)book.Price).ToString("#,##0"), " đ"))</del></h6>
+                                        }
+                                        else
+                                        {
+                                            <h6>@(book.Price.ToString("#,##0")) đ</h6>
                                         }
                                     </div>
                                     <div class="sold-number pr-2">Đã bán @book.SoldQuantity</div>
