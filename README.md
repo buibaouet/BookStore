@@ -26,3 +26,5 @@ Web bán sách cơ bản, không cầu kỳ, có thể sử dụng template
 - Sách bán chạy
 - Giỏ hàng
 - Xem trạng thái đơn hàng
+
+## [Video demo](https://www.youtube.com/watch?v=c2tsXAuVlTU) 
