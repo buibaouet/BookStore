@@ -18,6 +18,7 @@ namespace BookManagement.Controllers
         private readonly IUserConfig _userConfig;
         private readonly ICartService _cartService;
         private readonly IBaseService<Book> _bookService;
+        private readonly IBaseService<Category> _cateService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<Voucher> _voucherService;
         private readonly IBaseService<OrderDetail> _orderDetailService;
@@ -25,6 +26,7 @@ namespace BookManagement.Controllers
         public CartController(IUserConfig userConfig,
             IBaseService<OrderDetail> orderDetailService,
             IBaseService<Voucher> voucherService,
+            IBaseService<Category> cateService,
             IBaseService<Order> orderService,
             IBaseService<Book> bookService,
             ICartService cartService,
@@ -34,6 +36,7 @@ namespace BookManagement.Controllers
             _userConfig = userConfig;
             _cartService = cartService;
             _bookService = bookService;
+            _cateService = cateService;
             _orderService = orderService;
             _voucherService = voucherService;
             _orderDetailService = orderDetailService;
@@ -60,6 +63,7 @@ namespace BookManagement.Controllers
             var model = await GetCartModel(cartList);
 
             ViewBag.CartCount = cartList.Count;
+            ViewBag.ErrorProduct = model.CartItems.Count(x => !string.IsNullOrEmpty(x.ErrorMessage));
 
             return View(model);
         }
@@ -72,6 +76,7 @@ namespace BookManagement.Controllers
             ViewBag.CartCount = cartList?.Count ?? 0;
 
             var model = await GetCartModel(cartList);
+            ViewBag.ErrorProduct = model.CartItems.Count(x => !string.IsNullOrEmpty(x.ErrorMessage));
 
             if (string.IsNullOrEmpty(voucherCode))
             {
@@ -120,10 +125,12 @@ namespace BookManagement.Controllers
 
             if (cartList != null && cartList.Any())
             {
-                var books = await _bookService.GetList(x => cartList.Select(x => x.BookId).Contains(x.Id) && x.IsActive);
+                var books = await _bookService.GetList(x => cartList.Select(x => x.BookId).Contains(x.Id));
 
                 var joinBook = from c in cartList
                                join b in books on c.BookId equals b.Id
+                               join ca in _cateService.GetDbSet().ToList()
+                               on b.CategoryId equals ca.Id
                                select new CartItemModel
                                {
                                    Id = c.Id,
@@ -134,7 +141,9 @@ namespace BookManagement.Controllers
                                    BookName = b.BookName,
                                    MaxQuantity = b.Quantity,
                                    Price = (b.PriceDiscount != null && b.PriceDiscount != 0 ? (int)b.PriceDiscount : b.Price),
-                                   PriceOriginal = (b.PriceDiscount != null && b.PriceDiscount != 0 ? b.Price : null)
+                                   PriceOriginal = (b.PriceDiscount != null && b.PriceDiscount != 0 ? b.Price : null),
+                                   ErrorMessage = ((b.Quantity <= 0 || !b.IsActive || !ca.IsActive) ? "Sản phẩm đã bán hết hoặc không khả dụng"
+                                                    : (c.Quantity > b.Quantity ? "Số lượng sản phẩm vượt quá số lượng có sẵn" : string.Empty))
                                };
 
                 model.CartItems = joinBook.ToList();

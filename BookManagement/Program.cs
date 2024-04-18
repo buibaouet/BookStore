@@ -52,6 +52,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserConfig, UserConfig>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 var app = builder.Build();
 

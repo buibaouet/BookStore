@@ -18,31 +18,33 @@
         $(window).resize(toggleNavbarMethod);
 
         $('.register-form #inp-password').on('input', function () {
-            let pass = this.value;
-
+            let pass = this.value,
+                name = this.getAttribute('name');                ;
+            
             if (pass.length == 0) {
-                $(this.nextElementSibling).text('Mật khẩu không được để trống');
+                $(`span[data-valmsg-for="${name}"]`).text('Mật khẩu không được để trống');
             }
             else if (pass.length < 8) {
-                $(this.nextElementSibling).text('Mật khẩu chứa tối thiểu 8 ký tự');
+                $(`span[data-valmsg-for="${name}"]`).text('Mật khẩu chứa tối thiểu 8 ký tự');
             }
             else if (!(pass.match(/[a-zA-Z]/) && pass.match(/[0-9]/) && pass.match(/([!,%,&,@,#,$,^,*,?,_,~])/))) {
-                $(this.nextElementSibling).text('Mật khẩu chứa tối thiểu 1 chữ số và 1 ký tự đặc biệt');
+                $(`span[data-valmsg-for="${name}"]`).text('Mật khẩu chứa tối thiểu 1 chữ số và 1 ký tự đặc biệt');
             }
             else {
-                $(this.nextElementSibling).text('');
+                $(`span[data-valmsg-for="${name}"]`).text('');
             }
         });
 
         $('.register-form #inp-re-password').on('input', function () {
             let repass = this.value,
+                name = this.getAttribute('name'),
                 pass = $('.register-form #inp-password').val();                ;
 
             if (repass !== pass) {
-                $(this.nextElementSibling).text('Mật khẩu không khớp');
+                $(`span[data-valmsg-for="${name}"]`).text('Mật khẩu không khớp');
             }
             else {
-                $(this.nextElementSibling).text('');
+                $(`span[data-valmsg-for="${name}"]`).text('');
             }
         });
     });

@@ -40,10 +40,16 @@
                                         {
                                             @foreach (var item in Model.CartItems)
                                             {
-                                                <tr>
+                                                <tr class="@(string.IsNullOrEmpty(item.ErrorMessage) ? "" : "tr-invalid")">
                                                     <td style="text-align: left;" title="@item.BookName">
-                                                        <img src="/uploads/@item.BookImage" class="img-book-td mx-1">
-                                                        <a href="/home/detail?id=@item.BookId">@item.BookName</a>
+                                                        <div>
+                                                            <img src="/uploads/@item.BookImage" class="img-book-td mx-1">
+                                                            <a href="/home/detail?id=@item.BookId">@item.BookName</a>
+                                                        </div>
+                                                        @if (!string.IsNullOrEmpty(item.ErrorMessage))
+                                                        {
+                                                            <small class="red-color">* @item.ErrorMessage</small>
+                                                        }
                                                     </td>
                                                     <td class="align-middle">
                                                         @(item.Price.ToString("#,##0")) đ
@@ -212,11 +218,16 @@
 
         function confirmOrder() {
             if ('@Model.CartItems' != null && '@Model.CartItems.Count' > 0) {
-                if (!'@Model.VoucherId' || '@Model.VoucherId' == 0 || '@Model.VoucherId' == '') {
-                    window.location.href = `/cart/confirmorder`;
+                if ('@ViewBag.ErrorProduct' > 0) {
+                    showErrorToast('Có sản phẩm không hợp lệ trong giỏ hàng, vui lòng kiểm tra lại.');
                 }
                 else {
-                    window.location.href = `/cart/confirmorder?voucherId=${'@Model.VoucherId'}`;
+                    if (!'@Model.VoucherId' || '@Model.VoucherId' == 0 || '@Model.VoucherId' == '') {
+                        window.location.href = `/cart/confirmorder`;
+                    }
+                    else {
+                        window.location.href = `/cart/confirmorder?voucherId=${'@Model.VoucherId'}`;
+                    }
                 }
             }
             else {

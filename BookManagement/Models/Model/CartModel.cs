@@ -49,5 +49,6 @@ namespace BookManagement.Models.Model
             }
             set { }
         }
+        public string? ErrorMessage { get; set; }
     }
 }

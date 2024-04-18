@@ -11286,3 +11286,28 @@ body.sidebar-toggled footer.sticky-footer {
     height: auto;
     object-fit: contain;
 }
+
+.input-group-merge .form-control-user:first-child {
+    border-right: 0;
+}
+
+.input-group-merge .input-group-text:last-child {
+    background-color: #fff;
+    border: 1px solid #d1d3e2;
+    border-radius: 0 10rem 10rem 0;
+    border-left: 0;
+}
+
+.input-group-merge:focus-within {
+    border-radius: 10rem;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+    .input-group-merge:focus-within .form-control,
+    .input-group-merge:focus-within .input-group-text {
+        box-shadow: none;
+    }
+
+.cursor-pointer{
+    cursor: pointer;
+}

@@ -231,7 +231,7 @@ namespace BookManagement.Controllers
                 ViewData["HeaderTitle"] = "Thêm sách mới";
             }
 
-            var cate = _categoryService.GetAll();
+            var cate = await _categoryService.GetList(x => x.IsActive);
             cate.Insert(0, new Category()
             {
                 CategoryName = "Chọn danh mục"
@@ -250,7 +250,7 @@ namespace BookManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> BookDetail(Book model)
         {
-            var cate = _categoryService.GetAll();
+            var cate = await _categoryService.GetList(x => x.IsActive);
             cate.Insert(0, new Category()
             {
                 CategoryName = "Chọn danh mục"
