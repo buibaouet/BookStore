@@ -3,6 +3,7 @@ using BookManagement.Models.Entity;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,8 @@ app.MapRazorPages();
 app.MapDefaultControllerRoute();
 
 app.UseSession();
+
+app.UseRotativa();
 
 app.MapControllerRoute(
     name: "default",

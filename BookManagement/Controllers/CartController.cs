@@ -6,6 +6,7 @@ using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rotativa.AspNetCore;
 using X.PagedList;
 using static BookManagement.Constant.Enumerations;
 
@@ -446,6 +447,22 @@ namespace BookManagement.Controllers
             TempData["ToastType"] = Constants.Success;
 
             return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+        }
+
+        public IActionResult PrintOrder()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> PrintOrderPdf(int orderId)
+        {
+            var result = await _cartService.GetOrderDetail(orderId);
+
+            var report = new ViewAsPdf("PrintOrder", result)
+            {
+                PageSize = Rotativa.AspNetCore.Options.Size.A5,
+            };
+            return report;
         }
     }
 }
