@@ -21,7 +21,7 @@ namespace BookManagement.Models.Model
                 if (userConfig != null)
                 {
                     // Nếu có rồi thì check xem có phải admin không thì mới cho zô
-                    if (userConfig.IsAdmin)
+                    if (userConfig.RoleType == Constant.RoleEnum.Admin || userConfig.RoleType == Constant.RoleEnum.Staff)
                     {
                         return;
                     }

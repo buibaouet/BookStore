@@ -17931,3 +17931,22 @@ input[type=number] {
 .img-new-height{
     height: 240px !important;
 }
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+    opacity: 0.5;
+}
+
+input.disabled {
+    background-color: #eceef1;
+    opacity: 1;
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+}
+
+.text-align-end {
+    text-align: end;
+}

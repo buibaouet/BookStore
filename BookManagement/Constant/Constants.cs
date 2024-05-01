@@ -10,6 +10,7 @@
     public class Role
     {
         public const string Admin = "Admin";
-        public const string Default = "Default";
+        public const string Staff = "Staff";
+        public const string User = "User";
     }
 }

@@ -55,5 +55,13 @@
             Month = 2, // Tháng
             Quarter = 3, // Quý
         }
+
+        public enum GenderEnum : int
+        {
+            None = 0, // Chọn giới tính
+            Male = 1, // Nam
+            Female = 2, // Nữ
+            Other = 3, // Khác
+        }
     }
 }

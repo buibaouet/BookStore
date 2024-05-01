@@ -3,6 +3,7 @@ using System;
 using BookManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240501030000_UpdateDb01052024")]
+    partial class UpdateDb01052024
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,6 +296,7 @@ namespace BookManagement.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("BirthDay")
@@ -313,6 +317,7 @@ namespace BookManagement.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Infomation")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
@@ -333,6 +338,7 @@ namespace BookManagement.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("RoleName")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("RoleType")

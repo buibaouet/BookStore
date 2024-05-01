@@ -25,7 +25,9 @@ namespace BookManagement.Service
             var user = _mapper.Map<User>(model);
 
             user.Password = await HashPassword(model.Password);
-            user.IsAdmin = false;
+            user.RoleType = Constant.RoleEnum.User;
+            user.IsDelete = false;
+            user.IsActive = true;
 
             await _userService.Insert(user);
         }

@@ -14,7 +14,8 @@ using static BookManagement.Constant.Enumerations;
 
 namespace BookManagement.Controllers
 {
-    [Authorize(Roles = Role.Admin)]
+    //[Authorize(Roles = Role.Admin)]
+    [AdminAuthorize]
     public class AdminController : Controller
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -24,8 +25,11 @@ namespace BookManagement.Controllers
         private readonly IBaseService<News> _newsService;
         private readonly IBaseService<Book> _bookService;
         private readonly IBaseService<User> _userService;
+        private readonly IConfiguration _configuration;
         private readonly IAdminService _adminService;
         private readonly ICartService _cartService;
+        private readonly IAuthService _authService;
+        private readonly IUserConfig _userConfig;
         private readonly IMapper _mapper;
 
         public AdminController(IBaseService<Category> categoryService,
@@ -35,19 +39,25 @@ namespace BookManagement.Controllers
             IBaseService<News> newsService,
             IBaseService<Book> bookService,
             IBaseService<User> userService,
+            IConfiguration configuration,
             IAdminService adminService,
             ICartService cartService,
+            IAuthService authService,
+            IUserConfig userConfig,
             IMapper mapper)
         {
             _hostingEnvironment = environment;
             _categoryService = categoryService;
             _voucherService = voucherService;
+            _configuration = configuration;
             _adminService = adminService;
             _orderService = orderService;
             _newsService = newsService;
             _bookService = bookService;
             _cartService = cartService;
             _userService = userService;
+            _authService = authService;
+            _userConfig = userConfig;
             _mapper = mapper;
         }
 
@@ -63,6 +73,7 @@ namespace BookManagement.Controllers
         #region Category Management
         //GET: /Admin/CategoryManagement
         [HttpGet]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> CategoryManagement(int? pageIndex)
         {
             ViewBag.ToastType = Constants.None;
@@ -115,6 +126,7 @@ namespace BookManagement.Controllers
 
         //Post: /Admin/InsertCategory
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> InsertCategory([FromBody] Category model)
         {
             var redirectUrl = Url.Action("CategoryManagement", "Admin");
@@ -135,6 +147,7 @@ namespace BookManagement.Controllers
 
         //Put: /Admin/UpdateCategory
         [HttpPut]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> UpdateCategory([FromBody] Category model)
         {
             var redirectUrl = Url.Action("CategoryManagement", "Admin");
@@ -155,6 +168,7 @@ namespace BookManagement.Controllers
 
         //Delete: /Admin/DeleteCategory
         [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var redirectUrl = Url.Action("CategoryManagement", "Admin");
@@ -177,6 +191,7 @@ namespace BookManagement.Controllers
         #region Book Management
         //GET: /Admin/BookManagement
         [HttpGet]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> BookManagement(int? pageIndex, string? keyword, int? categoryId)
         {
             ViewBag.ToastType = Constants.None;
@@ -248,6 +263,7 @@ namespace BookManagement.Controllers
 
         //Post: /Admin/BookDetail
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> BookDetail(Book model)
         {
             var cate = await _categoryService.GetList(x => x.IsActive);
@@ -311,6 +327,7 @@ namespace BookManagement.Controllers
 
         //Delete: /Admin/DeleteBook
         [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var redirectUrl = Url.Action("BookManagement", "Admin");
@@ -330,6 +347,7 @@ namespace BookManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public IActionResult UploadImage([FromBody] UploadModel upload)
         {
             if (!string.IsNullOrEmpty(upload.BookImageUri))
@@ -402,6 +420,7 @@ namespace BookManagement.Controllers
         #region Voucher Management
         //GET: /Admin/VoucherManagement
         [HttpGet]
+        [Authorize(Roles = Role.Admin)]
         public IActionResult VoucherManagement(int? pageIndex)
         {
             ViewBag.ToastType = Constants.None;
@@ -446,6 +465,7 @@ namespace BookManagement.Controllers
 
         //Post: /Admin/InsertVoucher
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> InsertVoucher([FromBody] Voucher model)
         {
             var redirectUrl = Url.Action("VoucherManagement", "Admin");
@@ -466,6 +486,7 @@ namespace BookManagement.Controllers
 
         //Put: /Admin/UpdateVoucher
         [HttpPut]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> UpdateVoucher([FromBody] Voucher model)
         {
             var redirectUrl = Url.Action("VoucherManagement", "Admin");
@@ -486,6 +507,7 @@ namespace BookManagement.Controllers
 
         //Delete: /Admin/DeleteVoucher
         [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteVoucher(int id)
         {
             var redirectUrl = Url.Action("VoucherManagement", "Admin");
@@ -507,16 +529,28 @@ namespace BookManagement.Controllers
 
         //GET: /Admin/UserManagement
         [HttpGet]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> UserManagement(int? pageIndex, string? keyword)
         {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
             var result = new UserPagingModel()
             {
                 Keyword = keyword,
                 Paging = new PagingModel<UserManagementModel>()
             };
+            var currentUserId = _userConfig.GetUserId();
 
-            var users = await _userService.GetList(x => string.IsNullOrEmpty(keyword) ? x.Id > 0 : (x.UserName.ToLower().Contains(keyword.ToLower().Trim())
-                || x.LastName.ToLower().Contains(keyword.ToLower().Trim()) || x.FirstName.ToLower().Contains(keyword.ToLower().Trim())));
+            var users = await _userService.GetList(x => x.Id != currentUserId && !x.IsDelete && (string.IsNullOrEmpty(keyword) ? x.Id > 0 : (x.UserName.ToLower().Contains(keyword.ToLower().Trim())
+                || x.LastName.ToLower().Contains(keyword.ToLower().Trim()) || x.FirstName.ToLower().Contains(keyword.ToLower().Trim()))));
 
             var orders = await _orderService.GetList(x => users.Select(x => x.Id).Contains(x.UserId));
 
@@ -530,6 +564,9 @@ namespace BookManagement.Controllers
                 CreatedDate = u.CreatedDate,
                 TotalMoney = orders.Where(x => x.UserId == u.Id).Sum(x => x.TotalMoney),
                 TotalOrder = orders.Where(x => x.UserId == u.Id).Count(),
+                IsActive = u.IsActive,
+                RoleType = u.RoleType,
+                RoleName = u.RoleName,
             });
 
             result.Paging = new PagingModel<UserManagementModel>()
@@ -542,6 +579,153 @@ namespace BookManagement.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> UserDetail(int? id)
+        {
+            if (id != null)
+            {
+                ViewData["HeaderTitle"] = "Sửa thông tin tài khoản";
+            }
+            else
+            {
+                ViewData["HeaderTitle"] = "Thêm tài khoản";
+            }
+
+            // Set vào ViewBag
+            ViewBag.GenderList = new SelectList(new List<ItemDropdownModel>()
+            {
+                new ItemDropdownModel(){ Value = 0, Name = "Chọn giới tính" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Male, Name = "Nam" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Female, Name = "Nữ" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Other, Name = "Khác" },
+            }, "Value", "Name");
+
+            ViewBag.RoleList = new SelectList(new List<ItemDropdownModel>()
+            {
+                new ItemDropdownModel(){ Value = (int)RoleEnum.User, Name = "Người dùng" },
+                new ItemDropdownModel(){ Value = (int)RoleEnum.Staff, Name = "Nhân viên" },
+            }, "Value", "Name");
+
+            var user = (await _userService.GetEntityById(id ?? 0)) ?? new User()
+            {
+                Password = await _authService.HashPassword(_configuration.GetSection("Password:Default").Value)
+            };
+
+            return View(user);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> UserDetail(User model)
+        {
+            // Set vào ViewBag
+            ViewBag.GenderList = new SelectList(new List<ItemDropdownModel>()
+            {
+                new ItemDropdownModel(){ Value = 0, Name = "Chọn giới tính" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Male, Name = "Nam" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Female, Name = "Nữ" },
+                new ItemDropdownModel(){ Value = (int)GenderEnum.Other, Name = "Khác" },
+            }, "Value", "Name");
+
+            ViewBag.RoleList = new SelectList(new List<ItemDropdownModel>()
+            {
+                new ItemDropdownModel(){ Value = (int)RoleEnum.User, Name = "Người dùng" },
+                new ItemDropdownModel(){ Value = (int)RoleEnum.Staff, Name = "Nhân viên" },
+            }, "Value", "Name");
+
+            var user = await _userService.GetEntityById(model.Id);
+
+            if(user != null)
+            {
+                model.Password = user.Password;
+            }
+            else
+            {
+                model.Password = await _authService.HashPassword(_configuration.GetSection("Password:Default").Value);
+            }
+
+            if (ModelState.IsValid)
+            {
+                var userExist = await _userService.Exist(x => x.UserName.ToLower().Trim().Equals(model.UserName.ToLower().Trim()) && model.Id != x.Id);
+                var emailExist = await _userService.Exist(x => x.Email.ToLower().Trim().Equals(model.Email.ToLower().Trim()) && model.Id != x.Id);
+                if (userExist && emailExist)
+                {
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại");
+                    ModelState.AddModelError("Email", "Email đã tồn tại");
+                    return View(model);
+                }
+                else if (userExist)
+                {
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại");
+                    return View(model);
+                }
+                else if (emailExist)
+                {
+                    ModelState.AddModelError("Email", "Email đã tồn tại");
+                    return View(model);
+                }
+                else
+                {
+                    if (model.Id != 0)
+                    {
+                        await _userService.Update(model);
+
+                        TempData["ToastMessage"] = "Cập nhật thông tin tài khoản thành công.";
+                        TempData["ToastType"] = Constants.Success;
+                        return RedirectToAction("UserManagement");
+                    }
+                    else
+                    {
+                        await _userService.Insert(model);
+
+                        TempData["ToastMessage"] = "Đã thêm tài khoản mới với mật khẩu mặc định";
+                        TempData["ToastType"] = Constants.Success;
+                        return RedirectToAction("UserManagement");
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> LockUser(int userId)
+        {
+            var user = await _userService.GetEntityById(userId);
+
+            user.IsActive = !user.IsActive;
+            await _userService.Update(user);
+
+            TempData["ToastMessage"] = user.IsActive ? $"Đã mở khóa cho tài khoản {user.UserName}." : $"Đã khóa tài khoản {user.UserName}.";
+            TempData["ToastType"] = Constants.Success;
+            return RedirectToAction("UserManagement");
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            var redirectUrl = Url.Action("UserManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetEntityById(userId);
+
+                user.IsDelete = true;
+                await _userService.Update(user);
+
+                TempData["ToastMessage"] = $"Đã xóa tài khoản {user.UserName} thành công.";
+                TempData["ToastType"] = Constants.Success;
+                return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> NewsManagement(int? pageIndex, string? keyword)
         {
             ViewBag.ToastType = Constants.None;
@@ -589,6 +773,7 @@ namespace BookManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> NewsDetail(News model)
         {
             if (ModelState.IsValid)
@@ -615,6 +800,7 @@ namespace BookManagement.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteNews(int id)
         {
             var redirectUrl = Url.Action("NewsManagement", "Admin");

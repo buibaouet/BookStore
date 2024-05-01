@@ -106,7 +106,7 @@
                                         </div>
                                         <h6 class="fw-semibold px-2 d-block">
                                             @userConfig.UserName
-                                            @if (userConfig.IsAdmin)
+                                            @if (userConfig.RoleType == RoleEnum.Admin)
                                             {
                                                 <small class="text-muted mb-5" style="font-size: x-small;">(admin)</small>
                                             }
@@ -116,7 +116,13 @@
                                         <li>
                                             <div class="dropdown-divider"></div>
                                         </li>
-                                        @if (userConfig.IsAdmin)
+                                        <li style="text-align: left;">
+                                            <a class="dropdown-item" href="/account/infomation">
+                                                <i class="bx bx-user me-2"></i>
+                                                <span class="align-middle">Thông tin tài khoản</span>
+                                            </a>
+                                        </li>
+                                        @if (userConfig.RoleType == RoleEnum.Admin || userConfig.RoleType == RoleEnum.Staff)
                                         {
                                             <li style="text-align: left;">
                                                 <a class="dropdown-item" href="/admin/dashboard">

@@ -10697,3 +10697,18 @@ th {
 .red-color{
     color: red;
 }
+input.disabled {
+    background-color: #eceef1;
+    opacity: 1;
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+}
+
+.text-align-end {
+    text-align: end;
+}
+
+.account-info .card{
+    background-color: snow;
+}

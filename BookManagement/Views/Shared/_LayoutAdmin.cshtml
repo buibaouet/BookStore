@@ -62,120 +62,121 @@
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
             <!-- Menu -->
+            @{
+                var userConfig = new User();
+                string userConfigStr = HttpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData)?.Value;
 
-            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-                <div class="app-brand demo">
-                    <a href="/admin/dashboard" class="app-brand-link">
-                        <div id="logoImg"></div>
-                    </a>
-
-                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-                        <i class="bx bx-chevron-left bx-sm align-middle"></i>
-                    </a>
-                </div>
-
-                <div class="menu-inner-shadow"></div>
-
-                <ul class="menu-inner py-1">
-                    <!-- Dashboard -->
-                    <li class="menu-item @(ViewBag.Menu == 1 ? "active" : "")">
-                        <a href="/admin/dashboard" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                            <div>Thống kê</div>
+                if (!string.IsNullOrEmpty(userConfigStr))
+                {
+                    userConfig = JsonConvert.DeserializeObject<User>(userConfigStr);
+                }
+                <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+                    <div class="app-brand demo">
+                        <a href="/admin/dashboard" class="app-brand-link">
+                            <div id="logoImg"></div>
                         </a>
-                    </li>
 
-                    <li class="menu-item @(ViewBag.Menu == 2 ? "active" : "")">
-                        <a href="/admin/waitingdelivery" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-box"></i>
-                            <div>Quản lý đơn hàng</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item @(ViewBag.Menu == 3 ? "active" : "")">
-                        <a href="/admin/bookmanagement" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-copy"></i>
-                            <div>Quản lý sách</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item @(ViewBag.Menu == 4 ? "active" : "")">
-                        <a href="/admin/categorymanagement" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-detail"></i>
-                            <div>Quản lý danh mục</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item @(ViewBag.Menu == 5 ? "active" : "")">
-                        <a href="/admin/vouchermanagement" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-crown"></i>
-                            <div>Quản lý khuyến mại</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item @(ViewBag.Menu == 6 ? "active" : "")">
-                        <a href="/admin/usermanagement" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
-                            <div>Quản lý người dùng</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item @(ViewBag.Menu == 7 ? "active" : "")">
-                        <a href="/admin/newsmanagement" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-collection"></i>
-                            <div>Quản lý tin tức</div>
-                        </a>
-                    </li>
-                    <!-- Khác -->
-                    @* <li class="menu-header small text-uppercase"><span class="menu-header-text">Khác</span></li>
-                    <li class="menu-item">
-                        <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
-                           target="_blank"
-                           class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-support"></i>
-                            <div>Hỗ trợ</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                           target="_blank"
-                           class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-file"></i>
-                            <div>Hướng dẫn</div>
-                        </a>
-                    </li> *@
-                </ul>
-            </aside>
-            <!-- / Menu -->
-            <!-- Layout container -->
-            <div class="layout-page">
-                <!-- Navbar -->
-
-                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-                     id="layout-navbar">
-                    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                            <i class="bx bx-menu bx-sm"></i>
+                        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                            <i class="bx bx-chevron-left bx-sm align-middle"></i>
                         </a>
                     </div>
 
-                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                    <div class="menu-inner-shadow"></div>
 
-                        <!-- Search -->
-                        <div class="navbar-nav align-items-center">
-                            <div class="nav-item d-flex align-items-center">
-                                <span class="app-brand-text demo menu-text fw-bolder ms-2">@ViewData["HeaderTitle"]</span>
-                            </div>
+                    <ul class="menu-inner py-1">
+                        <!-- Dashboard -->
+                        <li class="menu-item @(ViewBag.Menu == 1 ? "active" : "")">
+                            <a href="/admin/dashboard" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                                <div>Thống kê</div>
+                            </a>
+                        </li>
+
+                        <li class="menu-item @(ViewBag.Menu == 2 ? "active" : "")">
+                            <a href="/admin/waitingdelivery" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-box"></i>
+                                <div>Quản lý đơn hàng</div>
+                            </a>
+                        </li>
+                        @if (userConfig.RoleType == RoleEnum.Admin)
+                        {
+                            <li class="menu-item @(ViewBag.Menu == 3 ? "active" : "")">
+                                <a href="/admin/bookmanagement" class="menu-link">
+                                    <i class="menu-icon tf-icons bx bx-copy"></i>
+                                    <div>Quản lý sách</div>
+                                </a>
+                            </li>
+
+                            <li class="menu-item @(ViewBag.Menu == 4 ? "active" : "")">
+                                <a href="/admin/categorymanagement" class="menu-link">
+                                    <i class="menu-icon tf-icons bx bx-detail"></i>
+                                    <div>Quản lý danh mục</div>
+                                </a>
+                            </li>
+
+                            <li class="menu-item @(ViewBag.Menu == 5 ? "active" : "")">
+                                <a href="/admin/vouchermanagement" class="menu-link">
+                                    <i class="menu-icon tf-icons bx bx-crown"></i>
+                                    <div>Quản lý khuyến mại</div>
+                                </a>
+                            </li>
+
+                            <li class="menu-item @(ViewBag.Menu == 6 ? "active" : "")">
+                                <a href="/admin/usermanagement" class="menu-link">
+                                    <i class="menu-icon tf-icons bx bx-user"></i>
+                                    <div>Quản lý người dùng</div>
+                                </a>
+                            </li>
+
+                            <li class="menu-item @(ViewBag.Menu == 7 ? "active" : "")">
+                                <a href="/admin/newsmanagement" class="menu-link">
+                                    <i class="menu-icon tf-icons bx bx-collection"></i>
+                                    <div>Quản lý tin tức</div>
+                                </a>
+                            </li>
+                        }
+                        <!-- Khác -->
+                        @*<li class="menu-header small text-uppercase"><span class="menu-header-text">Khác</span></li>
+                        <li class="menu-item">
+                            <a href="https:github.com/themeselection/sneat-html-admin-template-free/issues"
+                               target="_blank"
+                               class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-support"></i>
+                                <div>Hỗ trợ</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="https:themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
+                               target="_blank"
+                               class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-file"></i>
+                                <div>Hướng dẫn</div>
+                            </a>
+                        </li>*@
+                    </ul>
+                </aside>
+                <!-- / Menu -->
+                <!-- Layout container -->
+                <div class="layout-page">
+                    <!-- Navbar -->
+
+                    <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                         id="layout-navbar">
+                        <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                                <i class="bx bx-menu bx-sm"></i>
+                            </a>
                         </div>
-                        <!-- /Search -->
-                        @{
-                            var userConfig = new User();
-                            string userConfigStr = HttpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData)?.Value;
 
-                            if (!string.IsNullOrEmpty(userConfigStr))
-                            {
-                                userConfig = JsonConvert.DeserializeObject<User>(userConfigStr);
-                            }
+                        <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+
+                            <!-- Search -->
+                            <div class="navbar-nav align-items-center">
+                                <div class="nav-item d-flex align-items-center">
+                                    <span class="app-brand-text demo menu-text fw-bolder ms-2">@ViewData["HeaderTitle"]</span>
+                                </div>
+                            </div>
+                            <!-- /Search -->
                             <ul class="navbar-nav flex-row align-items-center ms-auto">
                                 <!-- User -->
                                 <li class="nav-item navbar-dropdown dropdown-user dropdow">
@@ -211,28 +212,28 @@
                                 </li>
                                 <!--/ User -->
                             </ul>
-                        }
-                    </div>
-                </nav>
-
-                <!-- / Navbar -->
-                <!-- Content wrapper -->
-                <div class="content-wrapper">
-                    <!-- Content -->
-
-                    <main role="main">
-                        <div class="container-xxl flex-grow-1 container-p-y">
-                            @RenderBody()
                         </div>
-                    </main>
+                    </nav>
 
-                    <!-- / Content -->
+                    <!-- / Navbar -->
+                    <!-- Content wrapper -->
+                    <div class="content-wrapper">
+                        <!-- Content -->
 
-                    <div class="content-backdrop fade"></div>
+                        <main role="main">
+                            <div class="container-xxl flex-grow-1 container-p-y">
+                                @RenderBody()
+                            </div>
+                        </main>
+
+                        <!-- / Content -->
+
+                        <div class="content-backdrop fade"></div>
+                    </div>
+                    <!-- Content wrapper -->
                 </div>
-                <!-- Content wrapper -->
-            </div>
-            <!-- / Layout page -->
+                <!-- / Layout page -->
+            }
         </div>
         <!-- Overlay -->
         <div class="layout-overlay layout-menu-toggle"></div>
@@ -284,8 +285,8 @@
         });
     </script>
 </body>
-@{ 
-    ViewBag.ToastType = Constants.None; 
-    ViewBag.ToastMessage = string.Empty; 
+@{
+    ViewBag.ToastType = Constants.None;
+    ViewBag.ToastMessage = string.Empty;
 }
 </html>
