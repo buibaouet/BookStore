@@ -6,6 +6,7 @@ namespace BookManagement.Models.Model
     public class OrderViewModel : Order
     {
         public string UserName { get; set; }
+        public string DeliveryName { get; set; }
         public string StatusName
         {
             get

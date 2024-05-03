@@ -63,5 +63,10 @@
             Female = 2, // Nữ
             Other = 3, // Khác
         }
+        public enum PaymentType : int
+        {
+            Cod = 1, // Thanh toán khi nhận hàng
+            Online = 2, // Thanh toán trực tuyến
+        }
     }
 }

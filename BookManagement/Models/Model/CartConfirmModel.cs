@@ -1,10 +1,19 @@
 ﻿using BookManagement.Models.Entity;
 using System.ComponentModel.DataAnnotations;
+using static BookManagement.Constant.Enumerations;
 
 namespace BookManagement.Models.Model
 {
     public class CartConfirmModel
     {
+        /// <summary>
+        /// Mã đơn hàng
+        /// </summary>
+        public string OrderCode { get; set; }
+        /// <summary>
+        /// Hình thức vận chuyển
+        /// </summary>
+        public int DeliveryId { get; set; }
         public int? VoucherId{ get; set; }
         public int ShipCost { get; set; }
         public int Discount { get; set; }
@@ -19,5 +28,9 @@ namespace BookManagement.Models.Model
         [Required(AllowEmptyStrings = false, ErrorMessage = "Địa chỉ không được để trống")]
         public string CustomerAddress { get; set; }
         public string? OrderNote { get; set; }
+        /// <summary>
+        /// Hình thức thanh toán
+        /// </summary>
+        public PaymentType PaymentType { get; set; }
     }
 }

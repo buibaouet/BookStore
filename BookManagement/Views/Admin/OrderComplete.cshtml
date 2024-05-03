@@ -50,12 +50,13 @@
                     <div class="d-flex justify-content-between ">
                         <h5 class="font-weight-bole">Tổng số: <strong>@Model.TotalRecord</strong> đơn hàng</h5>
                         <nav aria-label="Page navigation">
-                            @Html.PagedListPager((IPagedList)Model.DataPaging, page => Url.Action("waiting", "cart", new { pageIndex = page }),  new PagedListRenderOptions {
-                            LiElementClasses = new string[] { "page-item" },
-                            PageClasses = new string[] { "page-link" },
-                            UlElementClasses = new string[] { "pagination justify-content-center mb-1" },
-                            MaximumPageNumbersToDisplay = 5,
-                            })
+                            @Html.PagedListPager((IPagedList)Model.DataPaging, page => Url.Action("waiting", "cart", new { pageIndex = page }), new PagedListRenderOptions
+                       {
+                           LiElementClasses = new string[] { "page-item" },
+                           PageClasses = new string[] { "page-link" },
+                           UlElementClasses = new string[] { "pagination justify-content-center mb-1" },
+                           MaximumPageNumbersToDisplay = 5,
+                       })
                         </nav>
                     </div>
                     @{
@@ -65,13 +66,7 @@
                             {
                                 <div class="card mt-4">
                                     <div class="card-header bg-secondary border-0 d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avt-order-item">
-                                                <img src="/img/user-icon.png" class="h-100 w-100 rounded-circle">
-                                            </div>
-                                            <h6 class="font-weight-semi-bold my-0 mx-1">@item.UserName</h6>
-                                            <small>(@(item.UpdatedDate.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)))</small>
-                                        </div>
+                                        <h6 class="m-0"> Mã đơn hàng <b>#@item.OrderCode</b></h6>
                                         <div class="dropdown">
                                             <button class="btn p-0" type="button" id="cardOpt4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="bx bx-dots-vertical-rounded"></i>
@@ -82,6 +77,13 @@
                                         </div>
                                     </div>
                                     <div class="card-body mt-2">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="avatar avt-order-item">
+                                                <img src="/img/user-icon.png" class="h-100 w-100 rounded-circle">
+                                            </div>
+                                            <h6 class="font-weight-semi-bold my-0 mx-1">@item.UserName</h6>
+                                            <small>(@(item.UpdatedDate.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)))</small>
+                                        </div>
                                         <div class="row">
                                             <div class="col-5">
                                                 <h6 class="font-weight-medium mb-2">Người nhận: <label class="font-weight-normal">@item.CustomerName</label></h6>
@@ -125,6 +127,9 @@
                                             <h5 class="font-weight-bold">Tổng tiền:</h5>
                                             <h5 class="font-weight-bold">@(item.TotalMoney.ToString("#,##0")) đ</h5>
                                         </div>
+
+                                        <h6 class="font-weight-medium">Phương thức vận chuyển: <small>@item.DeliveryName</small></h6>
+                                        <h6 class="font-weight-medium">Hình thức thanh toán: <small>@item.PaymentName</small></h6>
                                         <h6 class="font-weight-medium m-0">Ghi chú: <small>@item.OrderNote</small></h6>
                                     </div>
                                 </div>

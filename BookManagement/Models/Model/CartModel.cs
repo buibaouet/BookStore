@@ -7,6 +7,10 @@ namespace BookManagement.Models.Model
         public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
         public int? VoucherId{ get; set; }
         public string? VoucherCode { get; set; }
+        /// <summary>
+        /// Hình thức vận chuyển
+        /// </summary>
+        public int? DeliveryId { get; set; }
         public int ShipCost { get; set; }
         public int Discount { get; set; }
         public int GrossMoney

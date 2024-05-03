@@ -20,6 +20,7 @@ namespace BookManagement.Controllers
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IBaseService<Category> _categoryService;
+        private readonly IBaseService<Delivery> _deliveryService;
         private readonly IBaseService<Voucher> _voucherService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<News> _newsService;
@@ -34,6 +35,7 @@ namespace BookManagement.Controllers
 
         public AdminController(IBaseService<Category> categoryService,
             IWebHostEnvironment environment,
+            IBaseService<Delivery> deliveryService,
             IBaseService<Voucher> voucherService,
             IBaseService<Order> orderService,
             IBaseService<News> newsService,
@@ -47,6 +49,7 @@ namespace BookManagement.Controllers
             IMapper mapper)
         {
             _hostingEnvironment = environment;
+            _deliveryService = deliveryService;
             _categoryService = categoryService;
             _voucherService = voucherService;
             _configuration = configuration;
@@ -818,5 +821,115 @@ namespace BookManagement.Controllers
             TempData["ToastType"] = Constants.Error;
             return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
         }
+
+        #region Delivery Management
+        //GET: /Admin/DeliveryManagement
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public IActionResult DeliveryManagement(int? pageIndex)
+        {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
+            var deliveries = _deliveryService.GetAll();
+
+            var pagingResult = new PagingModel<Delivery>()
+            {
+                TotalRecord = deliveries.Count(),
+                DataPaging = deliveries.OrderByDescending(x => x.UpdatedDate).ToPagedList(pageIndex ?? 1, 10),
+            };
+
+            return View(pagingResult);
+        }
+
+        //Get: /Admin/DeliveryById
+        [HttpGet]
+        public async Task<JsonResult> DeliveryById(int id)
+        {
+            var entity = await _deliveryService.GetEntityById(id);
+
+            return Json(entity);
+        }
+
+        //Get: /Admin/ExistDeliveryCode
+        [HttpGet]
+        public async Task<JsonResult> ExistDeliveryCode(string code, int? id)
+        {
+            var exist = await _deliveryService.Exist(x => x.DeliveryCode.Trim().ToLower().Equals(code.Trim().ToLower())
+                                                            && (id != null && id != 0 ? x.Id != id : x.Id > 0));
+
+            return Json(exist);
+        }
+
+        //Post: /Admin/InsertDelivery
+        [HttpPost]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> InsertDelivery([FromBody] Delivery model)
+        {
+            var redirectUrl = Url.Action("DeliveryManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                await _deliveryService.Insert(model);
+
+                TempData["ToastMessage"] = "Thêm phương thức vận chuyển thành công.";
+                TempData["ToastType"] = Constants.Success;
+                return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
+        }
+
+        //Put: /Admin/UpdateDelivery
+        [HttpPut]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> UpdateDelivery([FromBody] Delivery model)
+        {
+            var redirectUrl = Url.Action("DeliveryManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                await _deliveryService.Update(model);
+
+                TempData["ToastMessage"] = "Cập nhật phương thức vận chuyển thành công.";
+                TempData["ToastType"] = Constants.Success;
+                return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
+        }
+
+        //Delete: /Admin/DeleteDelivery
+        [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> DeleteDelivery(int id)
+        {
+            var redirectUrl = Url.Action("DeliveryManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                await _deliveryService.Delete(id);
+
+                TempData["ToastMessage"] = "Xóa phương thức vận chuyển thành công.";
+                TempData["ToastType"] = Constants.Success;
+                return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
+        }
+        #endregion
     }
 }

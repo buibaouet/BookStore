@@ -15,6 +15,7 @@ namespace BookManagement.Service
         private readonly IBaseService<Book> _bookService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<Voucher> _voucherService;
+        private readonly IBaseService<Delivery> _deliveryService;
         private readonly IBaseService<OrderDetail> _orderDetailService;
 
         public CartService(IGenericRepository<Cart> baseRepo,
@@ -23,6 +24,7 @@ namespace BookManagement.Service
             IBaseService<Book> bookService,
             IBaseService<Order> orderService,
             IBaseService<Voucher> voucherService,
+            IBaseService<Delivery> deliveryService,
             IBaseService<OrderDetail> orderDetailService,
             IMapper mapper) : base(baseRepo, logger)
         {
@@ -31,6 +33,7 @@ namespace BookManagement.Service
             _bookService = bookService;
             _orderService = orderService;
             _voucherService = voucherService;
+            _deliveryService = deliveryService;
             _orderDetailService = orderDetailService;
         }
 
@@ -41,6 +44,9 @@ namespace BookManagement.Service
             {
                 UserId = userId,
                 VoucherId = model.VoucherId,
+                OrderCode = model.OrderCode,
+                PaymentType = model.PaymentType,
+                DeliveryId = model.DeliveryId,
                 CustomerName = model.CustomerName,
                 CustomerAddress = model.CustomerAddress,
                 PhoneNumber = model.PhoneNumber,
@@ -106,6 +112,8 @@ namespace BookManagement.Service
             {
                 var user = await _userService.GetEntityById(order.UserId);
                 order.UserName = user.UserName;
+                var delivery = await _deliveryService.GetEntityById(order.DeliveryId);
+                order.DeliveryName = delivery.DeliveryName;
 
                 order.OrderDetails = await _orderDetailService.GetList(x => x.OrderId == order.Id);
             }
@@ -126,6 +134,8 @@ namespace BookManagement.Service
 
             var user = await _userService.GetEntityById(order.UserId);
             orderData.UserName = user.UserName;
+            var delivery = await _deliveryService.GetEntityById(order.DeliveryId);
+            orderData.DeliveryName = delivery.DeliveryName;
 
             orderData.OrderDetails = await _orderDetailService.GetList(x => x.OrderId == order.Id);
 

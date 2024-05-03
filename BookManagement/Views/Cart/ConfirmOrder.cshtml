@@ -1,4 +1,5 @@
 ﻿@using BookManagement.Models.Model;
+@using static BookManagement.Constant.Enumerations
 @model CartConfirmModel
 
 @{
@@ -13,7 +14,7 @@
 <div class="container-fluid">
     <div class="row px-xl-5">
         <div class="d-flex align-items-center">
-            <a href="/cart">
+            <a href="/cart?deliveryId=@Model.DeliveryId&voucherId=@Model.VoucherId">
                 <i class="menu-icon tf-icons bx bx-arrow-back" style="font-size: 1.5em;"></i>
             </a>
         </div>
@@ -30,30 +31,102 @@
                     @using (@Html.BeginForm("ConfirmOrder", "Cart", FormMethod.Post))
                     {
                         <div class="row">
+                            <h5 class="font-weight-medium primary-color mb-3">Mã đơn hàng: <b>#@Model.OrderCode</b></h5>
                             @Html.HiddenFor(m => m.VoucherId)
+                            @Html.HiddenFor(m => m.OrderCode)
+                            @Html.HiddenFor(m => m.DeliveryId)
                             <div class="col-lg-7 table-responsive mb-5">
-                                <div class="mb-4">
-                                    <h4 class="font-weight-semi-bold mb-4">Thông tin người nhận</h4>
+                                <div class="mb-1">
+                                    <h4 class="font-weight-semi-bold mb-3">Thông tin người nhận</h4>
                                     <div class="row">
                                         <div class="col-12 form-group">
                                             <label>Họ tên người nhận</label>
-                                            @Html.TextBoxFor(m => m.CustomerName, new { @class="form-control", required="required", placeholder="Họ tên", maxlength="255" })
-                                            @Html.ValidationMessageFor(m=>m.CustomerName, "", new { @class = "text-danger" })
+                                            @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", required = "required", placeholder = "Họ tên", maxlength = "255" })
+                                            @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="col-md-12 form-group">
                                             <label>Số điện thoại</label>
-                                            @Html.TextBoxFor(m => m.PhoneNumber, new { @class="form-control", required="required", placeholder="Số điện thoại" })
-                                            @Html.ValidationMessageFor(m=>m.PhoneNumber, "", new { @class = "text-danger" })
+                                            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", required = "required", placeholder = "Số điện thoại" })
+                                            @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="col-12 form-group">
                                             <label>Địa chỉ nhận hàng</label>
-                                            @Html.TextBoxFor(m => m.CustomerAddress, new { @class="form-control", required="required", placeholder="Địa chỉ", maxlength="500" })
-                                            @Html.ValidationMessageFor(m=>m.CustomerAddress, "", new { @class = "text-danger" })
+                                            @Html.TextBoxFor(m => m.CustomerAddress, new { @class = "form-control", required = "required", placeholder = "Địa chỉ", maxlength = "500" })
+                                            @Html.ValidationMessageFor(m => m.CustomerAddress, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="col-12 form-group">
                                             <label>Ghi chú</label>
-                                            @Html.TextAreaFor(m => m.OrderNote, new { @class="form-control", rows="3" })
+                                            @Html.TextAreaFor(m => m.OrderNote, new { @class = "form-control", rows = "2" })
                                         </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-weight-semi-bold mb-3">Phương thức thanh toán</h4>
+
+                                    <div class="row my-2">
+                                        <div class="col-md mb-md-0 mb-2">
+                                            <div class="form-check custom-option custom-option-basic checked">
+                                                <label class="form-check-label custom-option-content form-check-input-payment d-flex gap-3 align-items-center" for="paymentCOD">
+                                                    <input name="paymentType" class="form-check-input" type="radio" value="@PaymentType.Cod" id="paymentCOD" checked="">
+                                                    <span class="custom-option-body">
+                                                        <span class="ms-3">Thanh toán khi nhận hàng</span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md mb-md-0 mb-2">
+                                            <div class="form-check custom-option custom-option-basic">
+                                                <label class="form-check-label custom-option-content form-check-input-payment d-flex gap-3 align-items-center" for="paymentOnline">
+                                                    <input name="paymentType" class="form-check-input" type="radio" value="@PaymentType.Online" id="paymentOnline">
+                                                    <span class="custom-option-body">
+                                                        <span class="ms-3">Thanh toán online</span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="payment-online-info" class="d-none">
+                                        <h5 class="mt-4">Thông tin thanh toán</h5>
+                                        <div class="row my-2">
+                                            <div class="col-md-7 mb-md-0 mb-2">
+                                                <div class="form-check py-2 px-3 payment-info-ctn">
+                                                    <div class="form-group mb-2">
+                                                        <label class="label-custom">Mã đơn hàng</label>
+                                                        <div class="content-custom font-weight-semi-bold">#@Model.OrderCode</div>
+                                                    </div>
+                                                    <div class="form-group mb-2">
+                                                        <label class="label-custom">Ngân hàng</label>
+                                                        <div class="content-custom font-weight-semi-bold">VP-Bank</div>
+                                                    </div>
+                                                    <div class="form-group mb-2">
+                                                        <label class="label-custom">STK nhận tiền</label>
+                                                        <div class="content-custom font-weight-semi-bold">1991191999</div>
+                                                    </div>
+                                                    <div class="form-group mb-2">
+                                                        <label class="label-custom">Tên người nhận</label>
+                                                        <div class="content-custom font-weight-semi-bold">BookStore</div>
+                                                    </div>
+
+                                                    <hr class="mt-0 mb-2">
+                                                    <div class="form-group mb-2">
+                                                        <label class="label-custom">Số tiền</label>
+                                                        <div class="primary-color font-weight-semi-bold">@(Model.TotalMoney.ToString("#,##0")) đ</div>
+                                                    </div>
+                                                    <div class="form-group mb-0">
+                                                        <label class="label-custom">Lưu ý:</label>
+                                                        <li>Vui lòng chuyển đúng nội dung Mã đơn hàng <b>@Model.OrderCode</b> để chúng tôi xác nhận thanh toán</li>
+                                                        <li>Chuyển khoản nhanh 24/7 để hoàn tất giao dịch</li>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 mb-md-0 mb-2">
+                                                <div class="w-100 text-center">
+                                                    <h6>Quét mã QR bằng ứng dụng ngân hàng</h6>
+                                                    <img src="~/img/qr payment.jpg" style="width: 300px;" />
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -119,3 +192,22 @@
         </div>
     </div>
 </div>
+@section scripts {
+    <script>
+        $('input[type=radio][name=paymentType]').on('change', function (e) {
+            $(".custom-option").removeClass("checked");
+            e.target.closest(".custom-option").classList.add("checked");
+
+            switch ($(this).val()) {
+                case '@PaymentType.Cod':
+                    $('#payment-online-info').addClass('d-none');
+
+                    break;
+                case '@PaymentType.Online':
+                    $('#payment-online-info').removeClass('d-none');
+
+                    break;
+            }
+        });
+    </script>
+}

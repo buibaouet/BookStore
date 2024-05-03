@@ -6,7 +6,9 @@ using BookManagement.Models.Model;
 using BookManagement.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Rotativa.AspNetCore;
+using System.Text;
 using X.PagedList;
 using static BookManagement.Constant.Enumerations;
 
@@ -22,10 +24,12 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Category> _cateService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<Voucher> _voucherService;
+        private readonly IBaseService<Delivery> _deliveryService;
         private readonly IBaseService<OrderDetail> _orderDetailService;
 
         public CartController(IUserConfig userConfig,
             IBaseService<OrderDetail> orderDetailService,
+            IBaseService<Delivery> deliveryService,
             IBaseService<Voucher> voucherService,
             IBaseService<Category> cateService,
             IBaseService<Order> orderService,
@@ -40,11 +44,12 @@ namespace BookManagement.Controllers
             _cateService = cateService;
             _orderService = orderService;
             _voucherService = voucherService;
+            _deliveryService = deliveryService;
             _orderDetailService = orderDetailService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? voucherId, int? deliveryId)
         {
             var userId = _userConfig.GetUserId();
 
@@ -66,11 +71,53 @@ namespace BookManagement.Controllers
             ViewBag.CartCount = cartList.Count;
             ViewBag.ErrorProduct = model.CartItems.Count(x => !string.IsNullOrEmpty(x.ErrorMessage));
 
+            var deliveries = await _deliveryService.GetList(x => x.IsActive);
+
+            var deliveryModels = deliveries.OrderBy(x => x.Cost).Select(x => new ItemDropdownModel()
+            {
+                Id = x.Id,
+                Value = x.Cost,
+                Name = string.Concat(x.DeliveryName, $" ({x.Cost.ToString("#,##0")}đ)")
+            });
+
+            ViewBag.DeliveryList = new SelectList(deliveryModels, "Id", "Name");
+
+            // Mặc định set cho hình thức vận chuyển
+            if (deliveryId != null && deliveryId > 0)
+            {
+                var delivery = await _deliveryService.GetEntityById(deliveryId ?? 0);
+                if (delivery != null)
+                {
+                    model.DeliveryId = delivery.Id;
+                    model.ShipCost = delivery.Cost;
+                }
+            }
+            else
+            {
+                var delivery = deliveries.OrderBy(x => x.Cost).FirstOrDefault();
+                if (delivery != null)
+                {
+                    model.DeliveryId = delivery.Id;
+                    model.ShipCost = delivery.Cost;
+                }
+            }
+
+            if(voucherId != null && voucherId > 0)
+            {
+                var voucher = await _voucherService.GetEntityById(voucherId ?? 0);
+                if (voucher != null)
+                {
+                    model.VoucherId = voucher.Id;
+                    model.VoucherCode = voucher.VoucherCode;
+                    model.Discount = voucher.Discount;
+                }
+            }
+
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(string voucherCode)
+        public async Task<IActionResult> Index(string voucherCode, int deliveryId)
         {
             var userId = _userConfig.GetUserId();
             var cartList = await _cartService.GetList(x => x.UserId == userId);
@@ -78,6 +125,13 @@ namespace BookManagement.Controllers
 
             var model = await GetCartModel(cartList);
             ViewBag.ErrorProduct = model.CartItems.Count(x => !string.IsNullOrEmpty(x.ErrorMessage));
+
+            var delivery = await _deliveryService.GetEntityById(deliveryId);
+            if (delivery != null)
+            {
+                model.DeliveryId = delivery.Id;
+                model.ShipCost = delivery.Cost;
+            }
 
             if (string.IsNullOrEmpty(voucherCode))
             {
@@ -117,6 +171,17 @@ namespace BookManagement.Controllers
                 }
             }
 
+            var deliveries = await _deliveryService.GetList(x => x.IsActive);
+
+            var deliveryModels = deliveries.OrderBy(x => x.Cost).Select(x => new ItemDropdownModel()
+            {
+                Id = x.Id,
+                Value = x.Cost,
+                Name = string.Concat(x.DeliveryName, $" ({x.Cost.ToString("#,##0")}đ)")
+            });
+
+            ViewBag.DeliveryList = new SelectList(deliveryModels, "Id", "Name");
+
             return View(model);
         }
 
@@ -148,14 +213,13 @@ namespace BookManagement.Controllers
                                };
 
                 model.CartItems = joinBook.ToList();
-                model.ShipCost = 30000;
             }
 
             return model;
         }
 
         [HttpGet]
-        public async Task<IActionResult> ConfirmOrder(int? voucherId)
+        public async Task<IActionResult> ConfirmOrder(int deliveryId, int? voucherId)
         {
             var userId = _userConfig.GetUserId();
             var cartList = await _cartService.GetList(x => x.UserId == userId);
@@ -171,14 +235,24 @@ namespace BookManagement.Controllers
                 cartModel.Discount = voucher.Discount;
             }
 
+            var delivery = await _deliveryService.GetEntityById(deliveryId);
+            if (delivery != null)
+            {
+                cartModel.DeliveryId = deliveryId;
+                cartModel.ShipCost = delivery.Cost;
+            }
+
             ViewBag.CartInfo = cartModel;
 
             var model = new CartConfirmModel()
             {
+                OrderCode = RandomString(10),
                 VoucherId = voucherId,
                 ShipCost = cartModel.ShipCost,
                 Discount = cartModel.Discount,
                 TotalMoney = cartModel.TotalMoney,
+                PaymentType = PaymentType.Cod,
+                DeliveryId = deliveryId,
             };
 
             return View(model);
@@ -220,6 +294,13 @@ namespace BookManagement.Controllers
 
                 cartModel.VoucherCode = voucher.VoucherCode;
                 cartModel.Discount = voucher.Discount;
+            }
+
+            var delivery = await _deliveryService.GetEntityById(model.DeliveryId);
+            if (delivery != null)
+            {
+                cartModel.DeliveryId = delivery.Id;
+                cartModel.ShipCost = delivery.Cost;
             }
 
             ViewBag.CartInfo = cartModel;
@@ -463,6 +544,29 @@ namespace BookManagement.Controllers
                 PageSize = Rotativa.AspNetCore.Options.Size.A5,
             };
             return report;
+        }
+
+        // Generates a random string with a given size.
+        public string RandomString(int size, bool lowerCase = false)
+        {
+            var builder = new StringBuilder(size);
+
+            // Unicode/ASCII Letters are divided into two blocks
+            // (Letters 65–90 / 97–122):
+            // The first group containing the uppercase letters and
+            // the second group containing the lowercase.
+
+            // char is a single Unicode character
+            char offset = lowerCase ? 'a' : 'A';
+            const int lettersOffset = 26; // A...Z or a..z: length = 26
+
+            for (var i = 0; i < size; i++)
+            {
+                var @char = (char)new Random().Next(offset, offset + lettersOffset);
+                builder.Append(@char);
+            }
+
+            return lowerCase ? builder.ToString().ToLower() : builder.ToString();
         }
     }
 }

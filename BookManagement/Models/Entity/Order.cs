@@ -12,6 +12,14 @@ namespace BookManagement.Models.Entity
         /// </summary>
         public int UserId { get; set; }
         /// <summary>
+        /// Mã đơn hàng
+        /// </summary>
+        public string OrderCode { get; set; }
+        /// <summary>
+        /// Hình thức vận chuyển
+        /// </summary>
+        public int DeliveryId { get; set; }
+        /// <summary>
         /// Phí vận chuyển
         /// </summary>
         public int ShipCost { get; set; }
@@ -47,6 +55,26 @@ namespace BookManagement.Models.Entity
         /// Ghi chú
         /// </summary>
         public string? OrderNote { get; set; }
+        /// <summary>
+        /// Hình thức thanh toán
+        /// </summary>
+        public PaymentType PaymentType { get; set; }
+        public string PaymentName
+        {
+            get
+            {
+                switch (PaymentType)
+                {
+                    case PaymentType.Cod:
+                        return "Thanh toán khi nhận hàng";
+                    case PaymentType.Online:
+                        return "Thanh toán Online";
+                    default:
+                        return "";
+                }
+            }
+            set { }
+        }
         /// <summary>
         /// Lý do hủy đơn hàng
         /// </summary>

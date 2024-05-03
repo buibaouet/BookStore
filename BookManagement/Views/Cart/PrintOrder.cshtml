@@ -41,6 +41,10 @@
         @*Tài khoản đặt hàng *@
         <div class="mt-3">
             <h6 class="font-weight-bold mb-1">
+                Mã đơn hàng:
+                <label class="font-weight-normal m-0"> #@Model.OrderCode </label>
+            </h6>
+            <h6 class="font-weight-bold mb-1">
                 Tài khoản:
                 <label class="font-weight-normal m-0"> @Model.UserName </label>
             </h6>
@@ -118,8 +122,8 @@
         </div>
         <div class="card-footer bg-transparent">
             @*GHI CHÚ *@
-            <h6 class="font-weight-bold m-0"> Phương thức thanh toán: <label class="font-weight-normal m-0"> Thanh toán khi nhận hàng </label></h6>
-            <h6 class="font-weight-bold m-0"> Hình thức vận chuyển: <label class="font-weight-normal m-0"> Giao hàng tiết kiệm </label></h6>
+            <h6 class="font-weight-bold m-0"> Phương thức vận chuyển: <label class="font-weight-normal m-0"> @Model.DeliveryName </label></h6>
+            <h6 class="font-weight-bold m-0"> Hình thức thanh toán: <label class="font-weight-normal m-0"> @Model.PaymentName </label></h6>
 
             <h6 class="font-weight-bold m-0 mt-3"> Ghi chú: <label class="font-weight-normal m-0"> @Model.OrderNote </label></h6>
             <h6 class="font-weight-bold m-0"> Trạng thái: <label class="font-weight-normal m-0"> @Model.StatusName </label></h6>
