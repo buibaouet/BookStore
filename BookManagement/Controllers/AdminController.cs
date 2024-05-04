@@ -24,8 +24,9 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Voucher> _voucherService;
         private readonly IBaseService<Order> _orderService;
         private readonly IBaseService<News> _newsService;
-        private readonly IBaseService<Book> _bookService;
+        private readonly IBookService _bookService;
         private readonly IBaseService<User> _userService;
+        private readonly IBaseService<BookReview> _reviewService;
         private readonly IConfiguration _configuration;
         private readonly IAdminService _adminService;
         private readonly ICartService _cartService;
@@ -34,12 +35,13 @@ namespace BookManagement.Controllers
         private readonly IMapper _mapper;
 
         public AdminController(IBaseService<Category> categoryService,
+            IBaseService<BookReview> reviewService,
             IWebHostEnvironment environment,
             IBaseService<Delivery> deliveryService,
             IBaseService<Voucher> voucherService,
             IBaseService<Order> orderService,
             IBaseService<News> newsService,
-            IBaseService<Book> bookService,
+            IBookService bookService,
             IBaseService<User> userService,
             IConfiguration configuration,
             IAdminService adminService,
@@ -49,6 +51,7 @@ namespace BookManagement.Controllers
             IMapper mapper)
         {
             _hostingEnvironment = environment;
+            _reviewService = reviewService;
             _deliveryService = deliveryService;
             _categoryService = categoryService;
             _voucherService = voucherService;
@@ -637,7 +640,7 @@ namespace BookManagement.Controllers
 
             var user = await _userService.GetEntityById(model.Id);
 
-            if(user != null)
+            if (user != null)
             {
                 model.Password = user.Password;
             }
@@ -931,5 +934,93 @@ namespace BookManagement.Controllers
             return Json(new { redirectToUrl = redirectUrl, status = Constants.Error });
         }
         #endregion
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ReviewManagement(int? pageIndex)
+        {
+            ViewBag.ToastType = Constants.None;
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
+            var pagingResult = await _bookService.GetPagingReviewBook(ApproveStatus.None, pageIndex);
+
+            return View(pagingResult);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ApproveReview(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                var review = await _reviewService.GetEntityById(id);
+
+                if(review != null)
+                {
+                    review.Status = ApproveStatus.Approve;
+                    await _reviewService.Update(review);
+
+                    TempData["ToastMessage"] = "Duyệt đánh giá thành công.";
+                    TempData["ToastType"] = Constants.Success;
+                    return RedirectToAction("ReviewManagement");
+                }
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return RedirectToAction("ReviewManagement");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> RejectReview(int id)
+        {
+            var redirectUrl = Url.Action("ReviewManagement", "Admin");
+
+            if (ModelState.IsValid)
+            {
+                var review = await _reviewService.GetEntityById(id);
+
+                if (review != null)
+                {
+                    review.Status = ApproveStatus.Reject;
+                    await _reviewService.Update(review);
+
+                    TempData["ToastMessage"] = "Ẩn đánh giá thành công.";
+                    TempData["ToastType"] = Constants.Success;
+                    return RedirectToAction("ReviewManagement");
+                }
+            }
+
+            TempData["ToastMessage"] = "Có lỗi xảy ra trong quá trình xử lý.";
+            TempData["ToastType"] = Constants.Error;
+            return RedirectToAction("ReviewManagement");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ReviewApprove(int? pageIndex)
+        {
+            var pagingResult = await _bookService.GetPagingReviewBook(ApproveStatus.Approve, pageIndex);
+
+            return View(pagingResult);
+        }
+
+
+        [HttpGet]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ReviewReject(int? pageIndex)
+        {
+            var pagingResult = await _bookService.GetPagingReviewBook(ApproveStatus.Reject, pageIndex);
+
+            return View(pagingResult);
+        }
     }
 }

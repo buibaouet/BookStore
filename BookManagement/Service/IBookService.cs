@@ -8,5 +8,6 @@ namespace BookManagement.Service
     public interface IBookService : IBaseService<Book>
     {
         List<Book> GetBookActiveInCategoryActive(Expression<Func<Book, bool>> expresstion);
+        Task<PagingModel<ApproveReviewModel>> GetPagingReviewBook(ApproveStatus status, int? pageIndex);
     }
 }

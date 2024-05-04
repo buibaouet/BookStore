@@ -17,5 +17,6 @@ namespace BookManagement.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<News> News { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
+        public DbSet<BookReview> BookReviews { get; set; }
     }
 }

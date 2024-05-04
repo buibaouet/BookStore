@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BookManagement.Constant;
 using BookManagement.Data;
 using BookManagement.Models.Entity;
 using BookManagement.Models.Model;
@@ -19,6 +20,7 @@ namespace BookManagement.Controllers
         private readonly IBookService _bookService;
         private readonly IBaseService<Cart> _cartService;
         private readonly IBaseService<News> _newsService;
+        private readonly IBaseService<BookReview> _reviewService;
         private readonly IUserConfig _userConfig;
 
         public HomeController(IMapper mapper,
@@ -26,6 +28,7 @@ namespace BookManagement.Controllers
             IBaseService<Category> categoryService,
             IBaseService<Cart> cartService,
             IBaseService<News> newsService,
+            IBaseService<BookReview> reviewService,
             IUserConfig userConfig,
             IBookService bookService)
         {
@@ -36,6 +39,7 @@ namespace BookManagement.Controllers
             _mapper = mapper;
             _userConfig = userConfig;
             _newsService = newsService;
+            _reviewService = reviewService;
         }
 
         public async Task<IActionResult> Index()
@@ -77,6 +81,12 @@ namespace BookManagement.Controllers
 
             var userId = _userConfig.GetUserId();
             ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
+
+            var bookReviews = await _reviewService.GetList(x => x.BookId == id && x.Status == ApproveStatus.Approve);
+            var yourReview = await _reviewService.Get(x => x.UserId == userId && x.BookId == id);
+
+            ViewBag.BookReviews = bookReviews.OrderByDescending(x => x.CreatedDate).ToList();
+            ViewBag.YourReview = yourReview;
 
             return View();
         }
@@ -152,6 +162,28 @@ namespace BookManagement.Controllers
             ViewBag.CartCount = await _cartService.Count(x => x.UserId == userId);
 
             return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ReviewBooks([FromBody] BookReviewModel model)
+        {
+            var user = _userConfig.GetUserConfig();
+            var modelInsert = new BookReview()
+            {
+                BookId = model.BookId,
+                UserId = user.Id,
+                UserName = user.UserName,
+                Rating = model.Rating,
+                Comment = model.Comment,
+                Status = ApproveStatus.None
+            };
+
+            await _reviewService.Insert(modelInsert);
+
+            var redirectUrl = Url.Action("Detail", "Home", new { id = model.BookId });
+
+            return Json(new { redirectToUrl = redirectUrl, status = Constants.Success });
         }
     }
 }

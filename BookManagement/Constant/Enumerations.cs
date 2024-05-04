@@ -68,5 +68,11 @@
             Cod = 1, // Thanh toán khi nhận hàng
             Online = 2, // Thanh toán trực tuyến
         }
+        public enum ApproveStatus : int
+        {
+            None = 0, // Chưa xử lý
+            Approve = 1, // Duyệt
+            Reject = 2, // Không duyệt
+        }
     }
 }
