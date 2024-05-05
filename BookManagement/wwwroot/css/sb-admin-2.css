@@ -11723,6 +11723,14 @@ a:focus {
     }
 }
 
+.bg-logo-image {
+    background: url('../img/logo-img.jpeg');
+    background-position: center;
+    background-size: cover;
+    width: 250px;
+    height: 180px;
+}
+
 .bg-login-image {
     background: url('../img/image-login.jpg');
     background-position: center;
@@ -12268,3 +12276,29 @@ body.sidebar-toggled footer.sticky-footer {
     .ctn-print-order small {
         font-size: 1.5rem;
     }
+
+/* Chrome, Safari, Edge, Opera */
+input.input-otp::-webkit-outer-spin-button,
+input.input-otp::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input.input-otp[type=number] {
+    -moz-appearance: textfield;
+}
+
+.input-otp {
+    font-size: larger !important;
+    text-align: center;
+    letter-spacing: 0.5em;
+    caret-color: transparent;
+}
+.primary-color {
+    color: #daa14d;
+}
+.resend-opt {
+    font-size: smaller;
+    text-align: center;
+}

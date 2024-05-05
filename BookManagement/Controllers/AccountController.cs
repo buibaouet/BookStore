@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using static BookManagement.Constant.Enumerations;
@@ -25,6 +26,8 @@ namespace BookManagement.Controllers
         private readonly IBaseService<Cart> _cartService;
         private readonly IConfiguration _configuration;
         private readonly IUserConfig _userConfig;
+        private IMemoryCache _cache;
+        private IMailService _mailService;
 
         public AccountController(
             IMapper mapper,
@@ -32,7 +35,9 @@ namespace BookManagement.Controllers
             IBaseService<User> userService,
             IBaseService<Cart> cartService,
             IUserConfig userConfig,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IMailService mailService,
+            IMemoryCache memoryCache)
         {
             _mapper = mapper;
             _userConfig = userConfig;
@@ -40,6 +45,8 @@ namespace BookManagement.Controllers
             _userService = userService;
             _cartService = cartService;
             _configuration = configuration;
+            _cache = memoryCache;
+            _mailService = mailService;
         }
 
         // Get: /Account/Login
@@ -370,6 +377,250 @@ namespace BookManagement.Controllers
                     TempData["ToastMessage"] = "Cập nhật thông tin tài khoản thành công.";
                     TempData["ToastType"] = Constants.Success;
                     return RedirectToAction("Infomation");
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            ViewBag.ToastType = Constants.None;
+
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(EmailModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.Get(x => x.Email.ToLower().Trim().Equals(model.Email.ToLower().Trim()));
+
+                if (user != null)
+                {
+                    if (user.IsDelete)
+                    {
+                        ModelState.AddModelError("Email", "Email đăng ký cho tài khoản không khả dụng/đã bị xóa");
+                        return View(model);
+                    }
+                    else if (!user.IsActive)
+                    {
+                        ModelState.AddModelError("Email", "Email đăng ký cho tài khoản đã bị khóa");
+                        return View(model);
+                    }
+                    else
+                    {
+                        var otp = new Random().Next(100000, 999999);
+                        string key = Guid.NewGuid().ToString();
+
+                        // Save cache
+                        var cache = new ConfirmOtpModel()
+                        {
+                            Key = key,
+                            UserId = user.Id,
+                            Email = user.Email,
+                            OTP = otp
+                        };
+                        _cache.Set<ConfirmOtpModel>(key, cache, new TimeSpan(0, 10, 0));
+
+                        //Xử lý gửi mail
+                        var isSend = _mailService.SendMailResetPassword(user.Email, otp);
+
+                        if (isSend)
+                        {
+                            return RedirectToAction("ConfirmOTP", new { key = key });
+                        }
+                        else
+                        {
+                            TempData["ToastMessage"] = "Hệ thống mail gặp sự cố, vui lòng thử lại sau";
+                            TempData["ToastType"] = Constants.Error;
+                            return RedirectToAction("ForgotPassword");
+                        }
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("Email", "Email chưa được đăng ký");
+                    return View(model);
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ConfirmOTP(string key)
+        {
+            var cacheModel = new ConfirmOtpModel();
+
+            if (string.IsNullOrEmpty(key))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+            else if (!_cache.TryGetValue<ConfirmOtpModel>(key, out cacheModel))
+            {
+                TempData["ToastMessage"] = "Mã OTP đã hết hiệu lực, vui lòng thử lại";
+                TempData["ToastType"] = Constants.Error;
+                return RedirectToAction("ForgotPassword");
+            }
+
+            _cache.TryGetValue<ConfirmOtpModel>(key, out cacheModel);
+
+            var model = new ConfirmOtpBindingModel()
+            {
+                Key = key,
+            };
+
+            ViewBag.ToastType = Constants.None;
+
+            if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
+            {
+                ViewBag.ToastMessage = TempData["ToastMessage"];
+                ViewBag.ToastType = TempData["ToastType"];
+
+                TempData.Remove("ToastMessage");
+                TempData.Remove("ToastType");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmOTP(ConfirmOtpBindingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.OTP > 999999 || model.OTP < 100000)
+                {
+                    ModelState.AddModelError("OTP", "Nhập mã OTP gồm 6 chữ số");
+                    return View(model);
+                }
+                else
+                {
+                    var cacheModel = new ConfirmOtpModel();
+
+                    if (string.IsNullOrEmpty(model.Key) || !_cache.TryGetValue<ConfirmOtpModel>(model.Key, out cacheModel))
+                    {
+                        TempData["ToastMessage"] = "Mã OTP đã hết hiệu lực, vui lòng thử lại";
+                        TempData["ToastType"] = Constants.Error;
+                        return RedirectToAction("ForgotPassword");
+                    }
+
+                    _cache.TryGetValue<ConfirmOtpModel>(model.Key, out cacheModel);
+
+                    if (cacheModel.OTP != model.OTP)
+                    {
+                        ModelState.AddModelError("OTP", "Mã OTP không chính xác");
+                        return View(model);
+                    }
+                    else
+                    {
+                        return RedirectToAction("ResetPassword", new { key = model.Key });
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ResendOTP(string key)
+        {
+            var cacheModel = new ConfirmOtpModel();
+            _cache.TryGetValue<ConfirmOtpModel>(key, out cacheModel);
+            var otp = new Random().Next(100000, 999999);
+
+            // Save cache
+            var cache = new ConfirmOtpModel()
+            {
+                Key = key,
+                UserId = cacheModel.UserId,
+                Email = cacheModel.Email,
+                OTP = otp
+            };
+
+            _cache.Remove(key);
+            _cache.Set<ConfirmOtpModel>(key, cache, new TimeSpan(0, 10, 0));
+
+            //Xử lý gửi mail
+            var isSend = _mailService.SendMailResetPassword(cacheModel.Email, otp);
+
+            if (isSend)
+            {
+                TempData["ToastMessage"] = "Đã gửi lại mã OTP, vui lòng kiểm tra hòm thư.";
+                TempData["ToastType"] = Constants.Success;
+                return RedirectToAction("ConfirmOTP", new { key = key });
+            }
+            else
+            {
+                TempData["ToastMessage"] = "Hệ thống mail gặp sự cố, vui lòng thử lại sau";
+                TempData["ToastType"] = Constants.Error;
+                return RedirectToAction("ConfirmOTP");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string key)
+        {
+            var cacheModel = new ConfirmOtpModel();
+
+            if (string.IsNullOrEmpty(key))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+            else if (!_cache.TryGetValue<ConfirmOtpModel>(key, out cacheModel))
+            {
+                TempData["ToastMessage"] = "Mã OTP đã hết hiệu lực, vui lòng thử lại";
+                TempData["ToastType"] = Constants.Error;
+                return RedirectToAction("ForgotPassword");
+            }
+
+            _cache.TryGetValue<ConfirmOtpModel>(key, out cacheModel);
+
+            var model = new ConfirmPasswordModel()
+            {
+                Key = key,
+                UserId = cacheModel.UserId
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ConfirmPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetEntityById(model.UserId ?? 0);
+
+                if (user != null)
+                {
+                    user.Password = await _authService.HashPassword(model.NewPassword);
+                    await _userService.Update(user);
+
+                    // remove cache
+                    _cache.Remove(model.Key);
+
+                    TempData["ToastMessage"] = "Cập nhật mật khẩu thành công.";
+                    TempData["ToastType"] = Constants.Success;
+
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    ModelState.AddModelError("UserId", "Không tìm thấy tài khoản!");
+                    return View(model);
                 }
             }
 

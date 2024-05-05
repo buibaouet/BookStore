@@ -1,7 +1,6 @@
 ﻿@using BookManagement.Constant;
 @using BookManagement.Models.Model
-@model UserModel
-
+@model ConfirmOtpBindingModel
 @{
     Layout = null;
 }
@@ -10,17 +9,18 @@
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Đăng nhập - Book Store</title>
+    <title>Quên mật khẩu - Book Store</title>
 
     <link href="~/img/logo-img.jpeg" rel="icon">
     <!-- Custom fonts for this template-->
-    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
           rel="stylesheet">
 
@@ -32,7 +32,9 @@
 </head>
 
 <body class="bg-gradient-primary">
+
     <div class="container">
+
         <!-- Outer Row -->
         <div class="row justify-content-center">
             <div class="col-xl-10 col-lg-12 col-md-9">
@@ -40,52 +42,34 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6 d-none d-lg-block" style="align-self: center; text-align: -webkit-center;">
+                                <div class="bg-logo-image"></div>
+                            </div>
                             <div class="col-lg-6">
-                                <div class="px-5 pb-5 pt-4">
-                                    <div class="mb-3 text-center">
-                                        <img class="logo-img" src="~/img/logo-img.jpeg" />
-                                    </div>
+                                <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Chào mừng bạn!</h1>
+                                        <h1 class="h4 text-gray-900 mb-2">Bạn quên mật khẩu?</h1>
+                                        <p class="mb-4">
+                                            Vui lòng nhập nhập mã OTP đã được gửi tới email của bạn!
+                                        </p>
                                     </div>
-                                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { @class = "user", role = "form" }))
+                                    @using (Html.BeginForm(FormMethod.Post, new { @class = "user", role = "form" }))
                                     {
+                                        @Html.HiddenFor(m => m.Key)
                                         <div class="form-group">
-                                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control form-control-user", @required = "required", @placeholder = "Email hoặc Tên đăng nhập" })
-                                            @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
-
+                                            <input type="number" class="form-control form-control-user input-otp" placeholder="******"
+                                                   name="OTP" onKeyPress="if(this.value.length==6) return false;">
+                                            @Html.ValidationMessageFor(m => m.OTP, "", new { @class = "text-danger" })
+                                            <div class="mt-2 resend-opt">Bạn chưa nhận được mã?  <a href="/account/resendOTP?key=@Model.Key" class="primary-color">Gửi lại OPT</a></div>
                                         </div>
-                                        <div class="form-group form-password-toggle">
-                                            <div class="input-group input-group-merge">
-                                                @Html.PasswordFor(m => m.Password, new { @class = "form-control form-control-user", @required = "required", @placeholder = "Mật khẩu" })
-                                                <span class="btn-user input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-                                            </div>
-                                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                @Html.CheckBoxFor(m => m.RememberMe, new { @id = "rememberMe", @class = "custom-control-input" })
-                                                <label class="custom-control-label" for="customCheck">
-                                                    Remember
-                                                    Me
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary btn-user btn-block">
-                                            Đăng nhập
-                                        </button>
-                                        <hr>
-                                        <a href="/account/logingoogle" class="btn btn-google btn-user btn-block">
-                                            <i class="fab fa-google fa-fw"></i> Đăng nhập với Google
-                                        </a>
+                                        <input type="submit" class="btn btn-primary btn-user btn-block" value="Xác nhận">
                                     }
                                     <hr>
                                     <div class="text-center">
-                                        <a class="small" href="/account/forgotpassword">Quên mật khẩu?</a>
+                                        <a class="small" href="/account/register">Tạo tài khoản!</a>
                                     </div>
                                     <div class="text-center">
-                                        <a class="small" href="/account/register">Bạn chưa có tài khoản? Đăng ký ngay!</a>
+                                        <a class="small" href="/account/login">Bạn đã có tài khoản? Đăng nhập!</a>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +78,6 @@
                 </div>
             </div>
         </div>
-
         <div class="bs-toast toast toast-placement @(ViewBag.ToastType?.ToString() == Constants.Success ? "bg-success" : "bg-danger") top-0 end-0 mr-3 mt-3"
              role="alert"
              aria-live="assertive"
